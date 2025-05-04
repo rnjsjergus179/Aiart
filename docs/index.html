@@ -66,6 +66,7 @@
       font-weight: bold;
       font-size: 18px;
       margin-top: 15px;
+      display: inline-block;
     }
 
     .support {
@@ -95,6 +96,19 @@
       font-size: 16px;
       font-style: italic;
       margin-top: 10px;
+      display: inline-block;
+    }
+
+    /* 번역 버튼 스타일 */
+    .translate-btn {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-left: 10px;
     }
   </style>
 </head>
@@ -120,7 +134,8 @@
       width="600"
       style="display:block; margin:0 auto;"
     />
-    <figcaption>파스텔 톤의 구름 낀 저녁 하늘을 배경으로, 머리에 꽃잎 장식을 한 여성이 반신으로 미소 짓는 일러스트</figcaption>
+    <figcaption id="title1">파스텔 톤의 구름 낀 저녁 하늘을 배경으로, 머리에 꽃잎 장식을 한 여성이 반신으로 미소 짓는 일러스트</figcaption>
+    <button class="translate-btn" onclick="translateText('title1')">🔄 Translate</button>
     <div class="support">
       <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
     </div>
@@ -129,7 +144,8 @@
   <!-- 두 번째 프레임: 기존 내용 유지 -->
   <div class="frame">
     <img src="https://via.placeholder.com/300x400?text=AI+Art+2" alt="AI Art 2">
-    <div class="title">Dream of Machine</div>
+    <div class="title" id="title2">Dream of Machine</div>
+    <button class="translate-btn" onclick="translateText('title2')">🔄 Translate</button>
     <div class="support">
       <a href="https://buymeacoffee.com/yourname" target="_blank">♥ Support</a>
     </div>
@@ -138,7 +154,8 @@
   <!-- 세 번째 프레임: 기존 내용 유지 -->
   <div class="frame">
     <img src="https://via.placeholder.com/300x400?text=AI+Art+3" alt="AI Art 3">
-    <div class="title">Emotion Through Glass</div>
+    <div class="title" id="title3">Emotion Through Glass</div>
+    <button class="translate-btn" onclick="translateText('title3')">🔄 Translate</button>
     <div class="support">
       <a href="https://buymeacoffee.com/yourname" target="_blank">♥ Support</a>
     </div>
@@ -149,6 +166,19 @@
   © 2025. All AI artworks created using custom generative models.  
   <br>Website by 권덕현.
 </footer>
+
+<script>
+  function translateText(elId, targetLang = 'ko') {
+    const textElement = document.getElementById(elId);
+    const text = textElement.innerText || textElement.textContent;
+    const url = 'https://translate.google.com/?'
+      + 'sl=auto'
+      + '&tl=' + targetLang
+      + '&text=' + encodeURIComponent(text)
+      + '&op=translate';
+    window.open(url, '_blank');
+  }
+</script>
 
 </body>
 </html>
