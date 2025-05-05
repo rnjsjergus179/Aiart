@@ -27,7 +27,7 @@ function saveMessages(messages) {
 let messages = loadMessages();
 
 // WebSocket 서버 생성 (포트 8080에서 실행)
-const wss = new WebSocket.Server({ port: 8080 });
+const wss = new WebSocket.Server({ port: https://rnjsjergus179.github.io/Aiart/#});
 
 wss.on('connection', (ws) => {
   console.log('New client connected');
