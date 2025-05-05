@@ -6,7 +6,7 @@ const currentUser = {
 };
 
 // WebSocket 연결 (로컬 테스트용 URL, 배포 시 실제 서버 URL로 변경)
-const socket = new WebSocket('ws://localhost:8080');
+const socket = new WebSocket('ws:https://glorious-zebra-5g54qgv6wxqr34wj5-8080.app.github.dev/');
 
 // 금지어 목록 (필요에 따라 확장)
 const badWords = ['badword1', 'badword2', 'badword3'];
