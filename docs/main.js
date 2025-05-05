@@ -1,24 +1,24 @@
-// Simulated user data (replace with your auth system)
+// 현재 사용자 정보 (인증 시스템으로 대체 가능)
 const currentUser = {
-  username: 'User1', // Replace with actual username from auth
-  isAdmin: false,    // Replace with actual isAdmin flag from auth
-  avatar: 'default-avatar.png' // Replace with actual avatar URL
+  username: 'User1', // 실제 인증에서 사용자 이름으로 대체
+  isAdmin: false,    // 실제 인증에서 관리자 여부로 대체
+  avatar: 'default-avatar.png' // 실제 인증에서 아바타 URL로 대체
 };
 
-// WebSocket connection (replace URL with your server endpoint)
-const socket = new WebSocket('wss://your-websocket-server-url');
+// WebSocket 연결 (로컬 테스트용 URL, 배포 시 실제 서버 URL로 변경)
+const socket = new WebSocket('ws://localhost:8080');
 
-// Bad-word blacklist (expand as needed)
+// 금지어 목록 (필요에 따라 확장)
 const badWords = ['badword1', 'badword2', 'badword3'];
 
-// Sanitize input to prevent XSS
+// XSS 방지를 위한 입력 sanitization
 function sanitizeInput(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
 }
 
-// Filter bad words
+// 금지어 필터링
 function filterBadWords(text) {
   let filteredText = text;
   badWords.forEach(word => {
@@ -28,7 +28,7 @@ function filterBadWords(text) {
   return filteredText;
 }
 
-// Display a message
+// 메시지 화면에 표시
 function displayMessage(message, prepend = false) {
   const chatMessages = document.getElementById('chat-messages');
   const messageElement = document.createElement('div');
@@ -58,13 +58,7 @@ function displayMessage(message, prepend = false) {
   }
 }
 
-// Load chat history (simulated; fetch from backend in practice)
-function loadChatHistory() {
-  const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
-  history.forEach(message => displayMessage(message, true));
-}
-
-// Send a message
+// 메시지 전송
 function sendMessage() {
   const messageInput = document.getElementById('message-input');
   let text = messageInput.value.trim();
@@ -74,7 +68,6 @@ function sendMessage() {
   text = filterBadWords(text);
 
   const message = {
-    id: Date.now().toString(), // Unique ID (replace with server-generated ID)
     username: currentUser.username,
     avatar: currentUser.avatar,
     text: text,
@@ -86,54 +79,50 @@ function sendMessage() {
   messageInput.value = '';
 }
 
-// Delete a message (admin only)
+// 메시지 삭제 (관리자만 가능)
 function deleteMessage(id) {
   if (!currentUser.isAdmin) return;
-  socket.send(JSON.stringify({ type: 'delete', id: id }));
+  socket.send(JSON.stringify({ type: 'delete', data: { id } }));
 }
 
-// Pin/unpin a message (admin only)
+// 메시지 고정/해제 (관리자만 가능)
 function pinMessage(id) {
   if (!currentUser.isAdmin) return;
-  socket.send(JSON.stringify({ type: 'pin', id: id }));
+  socket.send(JSON.stringify({ type: 'pin', data: { id } }));
 }
 
-// WebSocket event handlers
+// WebSocket 이벤트 핸들러
 socket.onopen = () => {
   console.log('Connected to WebSocket server');
-  loadChatHistory();
 };
 
 socket.onmessage = (event) => {
   const { type, data } = JSON.parse(event.data);
-  if (type === 'message') {
+  if (type === 'history') {
+    // 서버에서 받은 채팅 기록 로드
+    data.forEach(message => displayMessage(message, true));
+  } else if (type === 'message') {
+    // 새 메시지 표시
     displayMessage(data);
-    const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
-    history.push(data);
-    localStorage.setItem('chatHistory', JSON.stringify(history));
   } else if (type === 'delete') {
+    // 메시지 삭제 반영
     const messageElement = document.querySelector(`.message[data-id="${data.id}"]`);
     if (messageElement) messageElement.remove();
-    let history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
-    history = history.filter(msg => msg.id !== data.id);
-    localStorage.setItem('chatHistory', JSON.stringify(history));
   } else if (type === 'pin') {
+    // 메시지 고정 상태 업데이트
     const messageElement = document.querySelector(`.message[data-id="${data.id}"]`);
     if (messageElement) {
       messageElement.classList.toggle('pinned');
       const pinButton = messageElement.querySelector('.message-actions button:nth-child(2)');
       pinButton.textContent = data.pinned ? 'Unpin' : 'Pin';
     }
-    let history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
-    history = history.map(msg => msg.id === data.id ? { ...msg, pinned: data.pinned } : msg);
-    localStorage.setItem('chatHistory', JSON.stringify(history));
   }
 };
 
 socket.onerror = (error) => console.error('WebSocket error:', error);
 socket.onclose = () => console.log('WebSocket closed');
 
-// Event listeners
+// 이벤트 리스너 추가
 document.getElementById('send-button').addEventListener('click', sendMessage);
 document.getElementById('message-input').addEventListener('keypress', (e) => {
   if (e.key === 'Enter') sendMessage();
