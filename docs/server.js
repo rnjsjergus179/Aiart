@@ -1,6 +1,16 @@
- const WebSocket = require('ws');
+const https = require('https');
+const WebSocket = require('ws');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
+
+// SSL 인증서 로드 (로컬 테스트용 self-signed 인증서 경로 설정)
+const server = https.createServer({
+  cert: fs.readFileSync('path/to/cert.pem'), // 인증서 파일 경로
+  key: fs.readFileSync('path/to/key.pem')    // 키 파일 경로
+});
+
+// WebSocket 서버 생성 (HTTPS 서버 위에서 실행)
+const wss = new WebSocket.Server({ server });
 
 // 메시지 파일 경로 (같은 폴더 내 messages.txt)
 const MESSAGES_FILE = 'messages.txt';
@@ -25,9 +35,6 @@ function saveMessages(messages) {
 
 // 메시지 초기화 (서버 시작 시 파일에서 불러옴)
 let messages = loadMessages();
-
-// WebSocket 서버 생성 (포트 8080에서 실행)
-const wss = new WebSocket.Server({ port:8080});
 
 wss.on('connection', (ws) => {
   console.log('New client connected');
@@ -83,5 +90,7 @@ wss.on('connection', (ws) => {
   });
 });
 
-// 서버 실행 메시지
-console.log('WebSocket server running on ws://glorious-zebra-5g54qgv6wxqr34wj5-8080.app.github.dev/');
+// HTTPS 서버 실행 (포트 8080에서 실행)
+server.listen(8080, () => {
+  console.log('Secure WebSocket server running on wss:https://glorious-zebra-5g54qgv6wxqr34wj5-8080.app.github.dev/');
+});
