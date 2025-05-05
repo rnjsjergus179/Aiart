@@ -124,6 +124,34 @@
       color: white;
     }
 
+    #nickname-section {
+      padding: 5px 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    #nickname-section label {
+      color: white;
+      margin-right: 5px;
+    }
+
+    #nickname-input {
+      flex: 1;
+      padding: 5px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    #change-nickname-button {
+      margin-left: 5px;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: none;
+      background: #ff5e5e;
+      color: white;
+      cursor: pointer;
+    }
+
     #chat-messages {
       flex: 1;
       overflow-y: auto;
@@ -135,13 +163,6 @@
       margin-bottom: 10px;
       display: flex;
       align-items: flex-start;
-    }
-
-    .message img {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      margin-right: 10px;
     }
 
     .message-content {
@@ -160,23 +181,6 @@
 
     .message-text {
       word-wrap: break-word;
-    }
-
-    .message-actions {
-      margin-left: 10px;
-      display: none;
-    }
-
-    .message:hover .message-actions {
-      display: inline;
-    }
-
-    .message-actions button {
-      background: none;
-      border: none;
-      color: #ff5e5e;
-      cursor: pointer;
-      font-size: 12px;
     }
 
     #chat-input {
@@ -199,11 +203,6 @@
       background: #ff5e5e;
       color: white;
       cursor: pointer;
-    }
-
-    .pinned {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid #ff5e5e;
     }
   </style>
 </head>
@@ -1126,6 +1125,11 @@
 <!-- Chat Panel -->
 <div id="chat-panel">
   <div id="chat-header">AI Exhibition Chat</div>
+  <div id="nickname-section">
+    <label for="nickname-input">닉네임: </label>
+    <input type="text" id="nickname-input" placeholder="닉네임 입력">
+    <button id="change-nickname-button">변경</button>
+  </div>
   <div id="chat-messages"></div>
   <div id="chat-input">
     <input type="text" id="message-input" placeholder="Type a message...">
@@ -1150,8 +1154,125 @@
 </script>
 <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-<!-- External JavaScript File -->
-<script src="main.js"></script>
+<!-- JavaScript -->
+<script type="text/javascript">
+  // 현재 사용자 정보
+  let currentUser = {
+    username: localStorage.getItem('nickname') || `User${Math.floor(Math.random() * 1000)}` // 랜덤 닉네임 생성
+  };
+
+  // BroadcastChannel 생성
+  const chatChannel = new BroadcastChannel('ai_exhibition_chat');
+
+  // 금지어 목록 (필요에 따라 확장)
+  const badWords = ['badword1', 'badword2', 'badword3'];
+
+  // 입력값 XSS 방지
+  function sanitizeInput(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // 금지어 필터링
+  function filterBadWords(text) {
+    let filtered = text;
+    badWords.forEach(word => {
+      const re = new RegExp(word, 'gi');
+      filtered = filtered.replace(re, '***');
+    });
+    return filtered;
+  }
+
+  // 화면에 메시지 표시
+  function displayMessage(msg) {
+    const container = document.getElementById('chat-messages');
+    if (!container) {
+      console.error('Error: #chat-messages 요소를 찾을 수 없습니다.');
+      return;
+    }
+    const el = document.createElement('div');
+    el.className = 'message';
+    el.innerHTML = `
+      <div class="message-content">
+        <span class="message-username">${msg.username}</span>
+        <span class="message-timestamp">${new Date(msg.timestamp).toLocaleTimeString()}</span>
+        <div class="message-text">${msg.text}</div>
+      </div>
+    `;
+    container.append(el);
+    container.scrollTop = container.scrollHeight; // 최신 메시지로 스크롤 이동
+  }
+
+  // 메시지 전송
+  function sendMessage() {
+    const input = document.getElementById('message-input');
+    if (!input) {
+      console.error('Error: #message-input 요소를 찾을 수 없습니다.');
+      return;
+    }
+    let text = input.value.trim();
+    if (!text) return; // 빈 메시지 전송 방지
+    text = sanitizeInput(filterBadWords(text));
+
+    const message = {
+      username: currentUser.username,
+      text,
+      timestamp: new Date().toISOString()
+    };
+
+    // BroadcastChannel을 통해 메시지 전송
+    chatChannel.postMessage(message);
+    displayMessage(message); // 자신에게도 메시지 표시
+    input.value = ''; // 입력창 초기화
+  }
+
+  // 닉네임 변경 기능
+  function changeNickname() {
+    const nicknameInput = document.getElementById('nickname-input');
+    if (!nicknameInput) {
+      console.error('Error: #nickname-input 요소를 찾을 수 없습니다.');
+      return;
+    }
+    const newNickname = nicknameInput.value.trim();
+    if (newNickname) {
+      currentUser.username = newNickname; // 닉네임 업데이트
+      localStorage.setItem('nickname', newNickname); // 닉네임 저장
+      console.log('Nickname changed to:', newNickname);
+    } else {
+      console.error('Error: 닉네임을 입력해주세요.');
+    }
+  }
+
+  // BroadcastChannel로 수신된 메시지 처리
+  chatChannel.onmessage = (event) => {
+    const msg = event.data;
+    displayMessage(msg); // 수신된 메시지 표시
+  };
+
+  // DOM 이벤트 리스너
+  document.addEventListener('DOMContentLoaded', () => {
+    const sendButton = document.getElementById('send-button');
+    const messageInput = document.getElementById('message-input');
+    const changeNicknameButton = document.getElementById('change-nickname-button');
+    const nicknameInput = document.getElementById('nickname-input');
+
+    if (!sendButton || !messageInput || !changeNicknameButton || !nicknameInput) {
+      console.error('Error: 필수 HTML 요소가 없습니다. 확인해주세요.');
+      return;
+    }
+
+    sendButton.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    changeNicknameButton.addEventListener('click', changeNickname);
+    nicknameInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') changeNickname();
+    });
+  });
+</script>
 
 </body>
 </html>
