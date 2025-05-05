@@ -1,4 +1,4 @@
-const WebSocket = require('ws');
+ const WebSocket = require('ws');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 
@@ -27,7 +27,7 @@ function saveMessages(messages) {
 let messages = loadMessages();
 
 // WebSocket 서버 생성 (포트 8080에서 실행)
-const wss = new WebSocket.Server({ port: https://rnjsjergus179.github.io/Aiart/#});
+const wss = new WebSocket.Server({ port:8080});
 
 wss.on('connection', (ws) => {
   console.log('New client connected');
@@ -84,4 +84,4 @@ wss.on('connection', (ws) => {
 });
 
 // 서버 실행 메시지
-console.log('WebSocket server running on ws:https://glorious-zebra-5g54qgv6wxqr34wj5-8080.app.github.dev/');
+console.log('WebSocket server running on ws://glorious-zebra-5g54qgv6wxqr34wj5-8080.app.github.dev/');
