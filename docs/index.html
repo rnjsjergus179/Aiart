@@ -1,4 +1,4 @@
-I'm<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -203,6 +203,21 @@ I'm<!DOCTYPE html>
       background: #ff5e5e;
       color: white;
       cursor: pointer;
+    }
+
+    /* Scroll to Top Button Styles */
+    #scroll-to-top {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: #ff5e5e;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-weight: bold;
+      display: none; /* 처음에는 숨김 */
     }
   </style>
 </head>
@@ -863,7 +878,7 @@ I'm<!DOCTYPE html>
   <!-- 일흔두 번째 프레임 -->
   <div class="frame">
     <img src="art72.jpg" alt="AI Art 72">
-    <div class="title">AI Art 72</div>
+    <div class="title">AI Art er72</div>
     <div class="support">
       <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
     </div>
@@ -1122,6 +1137,9 @@ I'm<!DOCTYPE html>
   </div>
 </div>
 
+<!-- Scroll to Top Button -->
+<button id="scroll-to-top">↑ Top</button>
+
 <!-- Chat Panel -->
 <div id="chat-panel">
   <div id="chat-header">AI Exhibition Chat</div>
@@ -1256,8 +1274,9 @@ I'm<!DOCTYPE html>
     const messageInput = document.getElementById('message-input');
     const changeNicknameButton = document.getElementById('change-nickname-button');
     const nicknameInput = document.getElementById('nickname-input');
+    const scrollToTopButton = document.getElementById('scroll-to-top');
 
-    if (!sendButton || !messageInput || !changeNicknameButton || !nicknameInput) {
+    if (!sendButton || !messageInput || !changeNicknameButton || !nicknameInput || !scrollToTopButton) {
       console.error('Error: 필수 HTML 요소가 없습니다. 확인해주세요.');
       return;
     }
@@ -1270,6 +1289,23 @@ I'm<!DOCTYPE html>
     changeNicknameButton.addEventListener('click', changeNickname);
     nicknameInput.addEventListener('keypress', e => {
       if (e.key === 'Enter') changeNickname();
+    });
+
+    // 스크롤 이벤트로 버튼 표시/숨김
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 300) { // 300px 이상 스크롤 시 버튼 표시
+        scrollToTopButton.style.display = 'block';
+      } else {
+        scrollToTopButton.style.display = 'none';
+      }
+    });
+
+    // 버튼 클릭 시 최상단으로 부드럽게 스크롤
+    scrollToTopButton.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
     });
   });
 </script>
