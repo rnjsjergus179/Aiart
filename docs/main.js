@@ -1,129 +1,117 @@
-// 현재 사용자 정보 (인증 시스템으로 대체 가능)
+// main.js
+
+// 1. 현재 사용자 정보 (실제 인증 시스템으로 대체 가능)
 const currentUser = {
-  username: 'User1', // 실제 인증에서 사용자 이름으로 대체
-  isAdmin: false,    // 실제 인증에서 관리자 여부로 대체
-  avatar: 'default-avatar.png' // 실제 인증에서 아바타 URL로 대체
+  username: 'User1',            // 로그인한 유저명으로 대체
+  isAdmin: false,               // 관리자 여부를 실제 인증에서 가져오기
+  avatar: 'default-avatar.png'  // 프로필 이미지 URL로 대체
 };
 
-// WebSocket 연결 (로컬 테스트용 URL, 배포 시 실제 서버 URL로 변경)
+// 2. WebSocket 연결 (배포 시에는 wss://도메인:포트 로 변경)
 const socket = new WebSocket('ws:https://glorious-zebra-5g54qgv6wxqr34wj5-8080.app.github.dev/');
 
-// 금지어 목록 (필요에 따라 확장)
+// 3. 금지어 목록 (필요에 따라 확장)
 const badWords = ['badword1', 'badword2', 'badword3'];
 
-// XSS 방지를 위한 입력 sanitization
+// 4. 입력값 XSS 방지
 function sanitizeInput(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
 }
 
-// 금지어 필터링
+// 5. 금지어 필터링
 function filterBadWords(text) {
-  let filteredText = text;
+  let filtered = text;
   badWords.forEach(word => {
-    const regex = new RegExp(word, 'gi');
-    filteredText = filteredText.replace(regex, '***');
+    const re = new RegExp(word, 'gi');
+    filtered = filtered.replace(re, '***');
   });
-  return filteredText;
+  return filtered;
 }
 
-// 메시지 화면에 표시
-function displayMessage(message, prepend = false) {
-  const chatMessages = document.getElementById('chat-messages');
-  const messageElement = document.createElement('div');
-  messageElement.className = 'message' + (message.pinned ? ' pinned' : '');
-  messageElement.dataset.id = message.id;
-
-  const timestamp = new Date(message.timestamp).toLocaleTimeString();
-  messageElement.innerHTML = `
-    <img src="${message.avatar}" alt="${message.username}'s avatar">
+// 6. 화면에 메시지 표시
+function displayMessage(msg, prepend = false) {
+  const container = document.getElementById('chat-messages');
+  const el = document.createElement('div');
+  el.className = 'message' + (msg.pinned ? ' pinned' : '');
+  el.dataset.id = msg.id;
+  el.innerHTML = `
+    <img src="${msg.avatar}" width="30" height="30" />
     <div class="message-content">
-      <span class="message-username">${message.username}</span>
-      <span class="message-timestamp">${timestamp}</span>
-      <div class="message-text">${message.text}</div>
+      <span class="message-username">${msg.username}</span>
+      <span class="message-timestamp">${new Date(msg.timestamp).toLocaleTimeString()}</span>
+      <div class="message-text">${msg.text}</div>
     </div>
     ${currentUser.isAdmin ? `
       <div class="message-actions">
-        <button onclick="deleteMessage('${message.id}')">Delete</button>
-        <button onclick="pinMessage('${message.id}')">${message.pinned ? 'Unpin' : 'Pin'}</button>
+        <button onclick="deleteMessage('${msg.id}')">삭제</button>
+        <button onclick="pinMessage('${msg.id}')">${msg.pinned ? '고정해제' : '고정'}</button>
       </div>` : ''}
   `;
-
-  if (prepend) {
-    chatMessages.insertBefore(messageElement, chatMessages.firstChild);
-  } else {
-    chatMessages.appendChild(messageElement);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+  if (prepend) container.prepend(el);
+  else {
+    container.append(el);
+    container.scrollTop = container.scrollHeight;
   }
 }
 
-// 메시지 전송
+// 7. 메시지 전송
 function sendMessage() {
-  const messageInput = document.getElementById('message-input');
-  let text = messageInput.value.trim();
+  const input = document.getElementById('message-input');
+  let text = input.value.trim();
   if (!text) return;
-
-  text = sanitizeInput(text);
-  text = filterBadWords(text);
+  text = sanitizeInput(filterBadWords(text));
 
   const message = {
     username: currentUser.username,
     avatar: currentUser.avatar,
-    text: text,
+    text,
     timestamp: new Date().toISOString(),
     pinned: false
   };
 
   socket.send(JSON.stringify({ type: 'message', data: message }));
-  messageInput.value = '';
+  input.value = '';
 }
 
-// 메시지 삭제 (관리자만 가능)
+// 8. 메시지 삭제 (관리자)
 function deleteMessage(id) {
   if (!currentUser.isAdmin) return;
   socket.send(JSON.stringify({ type: 'delete', data: { id } }));
 }
 
-// 메시지 고정/해제 (관리자만 가능)
+// 9. 메시지 고정/해제 (관리자)
 function pinMessage(id) {
   if (!currentUser.isAdmin) return;
   socket.send(JSON.stringify({ type: 'pin', data: { id } }));
 }
 
-// WebSocket 이벤트 핸들러
-socket.onopen = () => {
-  console.log('Connected to WebSocket server');
-};
-
-socket.onmessage = (event) => {
+// 10. WebSocket 이벤트 핸들러
+socket.onopen = () => console.log('WebSocket 연결됨');
+socket.onmessage = event => {
   const { type, data } = JSON.parse(event.data);
-  if (type === 'history') {
-    // 서버에서 받은 채팅 기록 로드
-    data.forEach(message => displayMessage(message, true));
-  } else if (type === 'message') {
-    // 새 메시지 표시
-    displayMessage(data);
-  } else if (type === 'delete') {
-    // 메시지 삭제 반영
-    const messageElement = document.querySelector(`.message[data-id="${data.id}"]`);
-    if (messageElement) messageElement.remove();
-  } else if (type === 'pin') {
-    // 메시지 고정 상태 업데이트
-    const messageElement = document.querySelector(`.message[data-id="${data.id}"]`);
-    if (messageElement) {
-      messageElement.classList.toggle('pinned');
-      const pinButton = messageElement.querySelector('.message-actions button:nth-child(2)');
-      pinButton.textContent = data.pinned ? 'Unpin' : 'Pin';
-    }
+  switch (type) {
+    case 'history':
+      data.forEach(msg => displayMessage(msg, true));
+      break;
+    case 'message':
+      displayMessage(data);
+      break;
+    case 'delete':
+      document.querySelector(`.message[data-id="${data.id}"]`)?.remove();
+      break;
+    case 'pin':
+      const el = document.querySelector(`.message[data-id="${data.id}"]`);
+      if (el) el.classList.toggle('pinned', data.pinned);
+      break;
   }
 };
+socket.onerror = err => console.error('WebSocket 에러:', err);
+socket.onclose = () => console.log('WebSocket 연결 종료');
 
-socket.onerror = (error) => console.error('WebSocket error:', error);
-socket.onclose = () => console.log('WebSocket closed');
-
-// 이벤트 리스너 추가
+// 11. DOM 이벤트 리스너
 document.getElementById('send-button').addEventListener('click', sendMessage);
-document.getElementById('message-input').addEventListener('keypress', (e) => {
+document.getElementById('message-input').addEventListener('keypress', e => {
   if (e.key === 'Enter') sendMessage();
 });
