@@ -80,4 +80,4 @@ wss.on('connection', (ws) => {
   });
 });
 
-console.log('WebSocket server running on ws://localhost:8080');
+console.log('WebSocket server running on ws:https://glorious-zebra-5g54qgv6wxqr34wj5-8080.app.github.dev/');
