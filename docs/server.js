@@ -1,5 +1,5 @@
 const https = require('https');
-const WebSocket = require('ws');
+const WebSocket = require('wss');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 
@@ -92,5 +92,5 @@ wss.on('connection', (ws) => {
 
 // HTTPS 서버 실행 (포트 8080에서 실행)
 server.listen(8080, () => {
-  console.log('Secure WebSocket server running on wss:https://glorious-zebra-5g54qgv6wxqr34wj5-8080.app.github.dev/');
+  console.log('Secure WebSocket server running on wss:https://glorious-zebra-5g54qgv6wxqr34wj5-8080.app.github.dev');
 });
