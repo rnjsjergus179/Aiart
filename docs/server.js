@@ -38,7 +38,10 @@ wss.on('connection', (ws) => {
   ws.on('message', (message) => {
     const { type, data } = JSON.parse(message);
 
-    if (type === 'message') {
+    if (type === 'log') {
+      // 클라이언트에서 전송된 로그를 터미널에 출력
+      console.log('[Client Log]:', data);
+    } else if (type === 'message') {
       // 새 메시지에 고유 ID 부여
       data.id = uuidv4();
       messages.push(data);
@@ -80,4 +83,5 @@ wss.on('connection', (ws) => {
   });
 });
 
+// 서버 실행 메시지
 console.log('WebSocket server running on ws:https://glorious-zebra-5g54qgv6wxqr34wj5-8080.app.github.dev/');
