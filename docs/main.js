@@ -1,3 +1,4 @@
+
 // main.js
 
 // 1. 현재 사용자 정보 (실제 인증 시스템으로 대체 가능)
@@ -8,7 +9,7 @@ const currentUser = {
 };
 
 // 2. WebSocket 연결 (배포 시에는 wss://도메인:포트로 변경)
-const socket = new WebSocket('ws:https://glorious-zebra-5g54qgv6wxqr34wj5-8080.app.github.dev/');
+const socket = new WebSocket('wss:https://glorious-zebra-5g54qgv6wxqr34wj5-8080.app.github.dev/'); // wss://로 변경
 
 // 3. 금지어 목록 (필요에 따라 확장)
 const badWords = ['badword1', 'badword2', 'badword3'];
