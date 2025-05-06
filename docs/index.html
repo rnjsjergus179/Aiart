@@ -56,7 +56,7 @@
       transform: scale(1.05);
     }
 
-    .frame img {
+    .frame img, .frame video {
       max-width: 100%;
       height: auto;
       border: 5px solid #ccc;
@@ -290,11 +290,13 @@
     </div>
   </div>
 
-  <!-- 일곱 번째 프레임 -->
+  <!-- 일곱 번째 프레임 (동영상) -->
   <div class="frame">
-    <video src="Aiart보관함/art7.mp4">
-      type=<"video/mp4">
-    <div class="title">AI Art 7</div>
+    <video controls>
+      <source src="Aiart보관함/art7.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <div class="title">AI Art 7 (Video)</div>
     <div class="support">
       <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
     </div>
@@ -879,7 +881,7 @@
   <!-- 일흔두 번째 프레임 -->
   <div class="frame">
     <img src="art72.jpg" alt="AI Art 72">
-    <div class="title">AI Art er72</div>
+    <div class="title">AI Art 72</div>
     <div class="support">
       <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
     </div>
