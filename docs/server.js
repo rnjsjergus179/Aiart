@@ -1,16 +1,40 @@
 const WebSocket = require('ws');
 const fs = require('fs');
-const server = new WebSocket.Server({ port: 8080 });
+const path = require('path');
+const express = require('express');
+const http = require('http');
 
-// 메시지를 저장할 파일 경로 (같은 폴더 내 messages.txt)
-const MESSAGE_FILE = './messages.txt';
+// Render에서 제공하는 PORT 환경 변수 사용 (기본값 8080)
+const PORT = process.env.PORT || 8080;
 
-// 서버 시작 시 messages.txt 파일이 없으면 생성
+// Express 앱 생성
+const app = express();
+
+// docs 폴더의 정적 파일 서빙 (HTML, CSS, JS 등)
+app.use(express.static(path.join(__dirname, 'docs')));
+
+// HTTP 서버 생성
+const server = http.createServer(app);
+
+// WebSocket 서버 생성 (HTTP 서버와 통합)
+const wss = new WebSocket.Server({ server });
+
+// 메시지를 저장할 파일 경로 (docs 폴더 내 messages.txt)
+const DOCS_DIR = path.join(__dirname, 'docs');
+const MESSAGE_FILE = path.join(DOCS_DIR, 'messages.txt');
+
+// docs 폴더가 없으면 생성
+if (!fs.existsSync(DOCS_DIR)) {
+  fs.mkdirSync(DOCS_DIR);
+}
+
+// messages.txt 파일이 없으면 생성
 if (!fs.existsSync(MESSAGE_FILE)) {
   fs.writeFileSync(MESSAGE_FILE, '');
 }
 
-server.on('connection', (ws) => {
+// WebSocket 연결 처리
+wss.on('connection', (ws) => {
   console.log('클라이언트 연결됨');
 
   // 기존 메시지를 클라이언트에 전송 (선택 사항)
@@ -37,7 +61,7 @@ server.on('connection', (ws) => {
     });
 
     // 모든 클라이언트에게 메시지 브로드캐스트
-    server.clients.forEach((client) => {
+    wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(message);
       }
@@ -49,4 +73,7 @@ server.on('connection', (ws) => {
   });
 });
 
-console.log('WebSocket 서버가 포트 8080에서 실행 중입니다.');
+// HTTP 및 WebSocket 서버 실행
+server.listen(PORT, () => {
+  console.log(`HTTP 및 WebSocket 서버가 포트 ${PORT}에서 실행 중입니다.`);
+});
