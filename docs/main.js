@@ -6,7 +6,7 @@ let currentUser = {
 };
 
 // 2. WebSocket 연결 설정
-const socket = new WebSocket('ws://localhost:8080'); // 서버의 WebSocket 주소 (포트 8080 사용)
+const socket = new WebSocket('ws:https://special-rotary-phone-jj945jr6xj95h5r7-8080.app.github.dev/'); // 서버의 WebSocket 주소 (포트 8080 사용)
 
 // WebSocket 이벤트 핸들러
 socket.onopen = () => {
