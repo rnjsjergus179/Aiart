@@ -27,11 +27,17 @@ if (!fs.existsSync(MESSAGE_FILE)) {
   fs.writeFileSync(MESSAGE_FILE, '');
 }
 
+// 온라인 사용자 목록
+let onlineUsers = [];
+
+// 타이핑 중인 사용자 목록
+let typingUsers = [];
+
 // WebSocket 연결 처리
 wss.on('connection', (ws) => {
   console.log('클라이언트 연결됨');
 
-  // 기존 메시지를 클라이언트에 전송 (선택 사항)
+  // 기존 메시지를 클라이언트에 전송
   fs.readFile(MESSAGE_FILE, 'utf8', (err, data) => {
     if (err) {
       console.error('메시지 파일 읽기 오류:', err);
@@ -47,19 +53,56 @@ wss.on('connection', (ws) => {
     console.log('수신된 메시지:', message);
     const msg = JSON.parse(message);
 
-    // 메시지를 messages.txt 파일에 저장
-    fs.appendFile(MESSAGE_FILE, JSON.stringify(msg) + '\n', (err) => {
-      if (err) {
-        console.error('메시지 저장 오류:', err);
-      }
-    });
-
-    // 모든 클라이언트에게 메시지 브로드캐스트
-    wss.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(message);
-      }
-    });
+    switch (msg.type) {
+      case 'join':
+        onlineUsers.push(msg.username);
+        wss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({ type: 'userList', users: onlineUsers }));
+          }
+        });
+        break;
+      case 'message':
+        // 메시지를 messages.txt 파일에 저장
+        fs.appendFile(MESSAGE_FILE, JSON.stringify(msg) + '\n', (err) => {
+          if (err) {
+            console.error('메시지 저장 오류:', err);
+          }
+        });
+        // 모든 클라이언트에게 메시지 브로드캐스트
+        wss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(message);
+          }
+        });
+        break;
+      case 'typing':
+        if (!typingUsers.includes(msg.username)) {
+          typingUsers.push(msg.username);
+          wss.clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+              client.send(JSON.stringify({ type: 'typing', typingUsers }));
+            }
+          });
+        }
+        break;
+      case 'stopTyping':
+        typingUsers = typingUsers.filter(user => user !== msg.username);
+        wss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({ type: 'stopTyping', typingUsers }));
+          }
+        });
+        break;
+      case 'leave':
+        onlineUsers = onlineUsers.filter(user => user !== msg.username);
+        wss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({ type: 'userList', users: onlineUsers }));
+          }
+        });
+        break;
+    }
   });
 
   ws.on('close', () => {
