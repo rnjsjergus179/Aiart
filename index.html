@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Art Gallery</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f0f0;
+    }
+
+    header {
+      background-color: #222;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      letter-spacing: 1px;
+    }
+
+    nav {
+      background-color: #333;
+      display: flex;
+      justify-content: center;
+      padding: 10px 0;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .frame {
+      background: white;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      border: 10px solid #ddd;
+      margin: 20px;
+      padding: 15px;
+      width: 600px;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+
+    .frame:hover {
+      transform: scale(1.05);
+    }
+
+    .frame img, .frame video {
+      max-width: 100%;
+      height: auto;
+      border: 5px solid #ccc;
+    }
+
+    .title {
+      font-weight: bold;
+      font-size: 18px;
+      margin-top: 15px;
+      display: inline-block;
+    }
+
+    .support {
+      margin-top: 10px;
+    }
+
+    .support a {
+      background: #ff5e5e;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: bold;
+      display: inline-block;
+    }
+
+    footer {
+      background: #222;
+      color: #aaa;
+      text-align: center;
+      padding: 30px 10px;
+      font-size: 14px;
+    }
+
+    figcaption {
+      font-size: 16px;
+      font-style: italic;
+      margin-top: 10px;
+      display: inline-block;
+    }
+
+    #google_translate_element {
+      margin-left: 20px;
+    }
+
+    /* Chat Panel Styles */
+    #chat-panel {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 300px;
+      height: 400px;
+      background: rgba(0,0,0,0.6);
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+    }
+
+    #chat-header {
+      font-size: 16px;
+      font-weight: bold;
+      padding: 10px;
+      text-align: center;
+      color: white;
+    }
+
+    #nickname-section {
+      padding: 5px 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    #nickname-section label {
+      color: white;
+      margin-right: 5px;
+    }
+
+    #nickname-input {
+      flex: 1;
+      padding: 5px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    #change-nickname-button {
+      margin-left: 5px;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: none;
+      background: #ff5e5e;
+      color: white;
+      cursor: pointer;
+    }
+
+    #chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      color: white;
+    }
+
+    .message {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: flex-start;
+    }
+
+    .message-content {
+      flex: 1;
+    }
+
+    .message-username {
+      font-weight: bold;
+      margin-right: 5px;
+    }
+
+    .message-timestamp {
+      font-size: 12px;
+      color: #ccc;
+    }
+
+    .message-text {
+      word-wrap: break-word;
+    }
+
+    #chat-input {
+      display: flex;
+      padding: 10px;
+    }
+
+    #message-input {
+      flex: 1;
+      padding: 5px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    #send-button {
+      margin-left: 10px;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: none;
+      background: #ff5e5e;
+      color: white;
+      cursor: pointer;
+    }
+
+    /* Scroll to Top Button Styles */
+    #scroll-to-top {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: #ff5e5e;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-weight: bold;
+      display: none; /* 처음에는 숨김 */
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  Virtual AI Art Exhibition
+  <div id="google_translate_element"></div>
+</header>
+
+<nav>
+  <a href="#">Home</a>
+  <a href="#">Gallery</a>
+  <a href="#">About the Artist</a>
+  <a href="#">Support</a>
+</nav>
+
+<div class="gallery">
+  <!-- 첫 번째 프레임 -->
+  <div class="frame">
+    <img src="art1.jpg" alt="AI Art 1">
+    <div class="title">An illustration of a half-length smiling woman with floral ornaments in her hair, set against a pastel-toned, cloudy evening sky.</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 두 번째 프레임 -->
+  <div class="frame">
+    <img src="art2.jpg" alt="AI Art 2">
+    <div class="title">"Blooming at Twilight"</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 세 번째 프레임 -->
+  <div class="frame">
+    <img src="art3.jpg" alt="AI Art 3">
+    <div class="title">Emotion Through Glass</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 네 번째 프레임 -->
+  <div class="frame">
+    <img src="art4.jpg" alt="AI Art 4">
+    <div class="title">"Crimson Moonlight Empress"</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 다섯 번째 프레임 -->
+  <div class="frame">
+    <img src="art5.jpg" alt="AI Art 5">
+    <div class="title">"Twilight Winged Priestess"</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 여섯 번째 프레임 -->
+  <div class="frame">
+    <img src="Aiart보관함/art6.jpg" alt="AI Art 6">
+    <div class="title">"Neon Reflections"</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 일곱 번째 프레임 (동영상) -->
+  <div class="frame">
+    <video controls>
+      <source src="Aiart보관함/art7.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <div class="title">Shadow Unleashed</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 여덟 번째 프레임 -->
+  <div class="frame">
+    <img src="art8.jpg" alt="AI Art 8">
+    <div class="title">AI Art 8</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 아홉 번째 프레임 -->
+  <div class="frame">
+    <img src="art9.jpg" alt="AI Art 9">
+    <div class="title">AI Art 9</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 열 번째 프레임 -->
+  <div class="frame">
+    <img src="art10.jpg" alt="AI Art 10">
+    <div class="title">AI Art 10</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 열한 번째 프레임 -->
+  <div class="frame">
+    <img src="art11.jpg" alt="AI Art 11">
+    <div class="title">AI Art 11</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 열두 번째 프레임 -->
+  <div class="frame">
+    <img src="art12.jpg" alt="AI Art 12">
+    <div class="title">AI Art 12</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 열세 번째 프레임 -->
+  <div class="frame">
+    <img src="art13.jpg" alt="AI Art 13">
+    <div class="title">AI Art 13</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 열네 번째 프레임 -->
+  <div class="frame">
+    <img src="art14.jpg" alt="AI Art 14">
+    <div class="title">AI Art 14</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 열다섯 번째 프레임 -->
+  <div class="frame">
+    <img src="art15.jpg" alt="AI Art 15">
+    <div class="title">AI Art 15</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 열여섯 번째 프레임 -->
+  <div class="frame">
+    <img src="art16.jpg" alt="AI Art 16">
+    <div class="title">AI Art 16</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 열일곱 번째 프레임 -->
+  <div class="frame">
+    <img src="art17.jpg" alt="AI Art 17">
+    <div class="title">AI Art 17</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 열여덟 번째 프레임 -->
+  <div class="frame">
+    <img src="art18.jpg" alt="AI Art 18">
+    <div class="title">AI Art 18</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 열아홉 번째 프레임 -->
+  <div class="frame">
+    <img src="art19.jpg" alt="AI Art 19">
+    <div class="title">AI Art 19</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 스무 번째 프레임 -->
+  <div class="frame">
+    <img src="art20.jpg" alt="AI Art 20">
+    <div class="title">AI Art 20</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 스물한 번째 프레임 -->
+  <div class="frame">
+    <img src="art21.jpg" alt="AI Art 21">
+    <div class="title">AI Art 21</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 스물두 번째 프레임 -->
+  <div class="frame">
+    <img src="art22.jpg" alt="AI Art 22">
+    <div class="title">AI Art 22</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 스물세 번째 프레임 -->
+  <div class="frame">
+    <img src="art23.jpg" alt="AI Art 23">
+    <div class="title">AI Art 23</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 스물네 번째 프레임 -->
+  <div class="frame">
+    <img src="art24.jpg" alt="AI Art 24">
+    <div class="title">AI Art 24</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 스물다섯 번째 프레임 -->
+  <div class="frame">
+    <img src="art25.jpg" alt="AI Art 25">
+    <div class="title">AI Art 25</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 스물여섯 번째 프레임 -->
+  <div class="frame">
+    <img src="art26.jpg" alt="AI Art 26">
+    <div class="title">AI Art 26</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 스물일곱 번째 프레임 -->
+  <div class="frame">
+    <img src="art27.jpg" alt="AI Art 27">
+    <div class="title">AI Art 27</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 스물여덟 번째 프레임 -->
+  <div class="frame">
+    <img src="art28.jpg" alt="AI Art 28">
+    <div class="title">AI Art 28</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 스물아홉 번째 프레임 -->
+  <div class="frame">
+    <img src="art29.jpg" alt="AI Art 29">
+    <div class="title">AI Art 29</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 서른 번째 프레임 -->
+  <div class="frame">
+    <img src="art30.jpg" alt="AI Art 30">
+    <div class="title">AI Art 30</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 서른한 번째 프레임 -->
+  <div class="frame">
+    <img src="art31.jpg" alt="AI Art 31">
+    <div class="title">AI Art 31</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 서른두 번째 프레임 -->
+  <div class="frame">
+    <img src="art32.jpg" alt="AI Art 32">
+    <div class="title">AI Art 32</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 서른세 번째 프레임 -->
+  <div class="frame">
+    <img src="art33.jpg" alt="AI Art 33">
+    <div class="title">AI Art 33</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 서른네 번째 프레임 -->
+  <div class="frame">
+    <img src="art34.jpg" alt="AI Art 34">
+    <div class="title">AI Art 34</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 서른다섯 번째 프레임 -->
+  <div class="frame">
+    <img src="art35.jpg" alt="AI Art 35">
+    <div class="title">AI Art 35</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 서른여섯 번째 프레임 -->
+  <div class="frame">
+    <img src="art36.jpg" alt="AI Art 36">
+    <div class="title">AI Art 36</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 서른일곱 번째 프레임 -->
+  <div class="frame">
+    <img src="art37.jpg" alt="AI Art 37">
+    <div class="title">AI Art 37</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 서른여덟 번째 프레임 -->
+  <div class="frame">
+    <img src="art38.jpg" alt="AI Art 38">
+    <div class="title">AI Art 38</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 서른아홉 번째 프레임 -->
+  <div class="frame">
+    <img src="art39.jpg" alt="AI Art 39">
+    <div class="title">AI Art 39</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 마흔 번째 프레임 -->
+  <div class="frame">
+    <img src="art40.jpg" alt="AI Art 40">
+    <div class="title">AI Art 40</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 마흔한 번째 프레임 -->
+  <div class="frame">
+    <img src="art41.jpg" alt="AI Art 41">
+    <div class="title">AI Art 41</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 마흔두 번째 프레임 -->
+  <div class="frame">
+    <img src="art42.jpg" alt="AI Art 42">
+    <div class="title">AI Art 42</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 마흔세 번째 프레임 -->
+  <div class="frame">
+    <img src="art43.jpg" alt="AI Art 43">
+    <div class="title">AI Art 43</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 마흔네 번째 프레임 -->
+  <div class="frame">
+    <img src="art44.jpg" alt="AI Art 44">
+    <div class="title">AI Art 44</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 마흔다섯 번째 프레임 -->
+  <div class="frame">
+    <img src="art45.jpg" alt="AI Art 45">
+    <div class="title">AI Art 45</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 마흔여섯 번째 프레임 -->
+  <div class="frame">
+    <img src="art46.jpg" alt="AI Art 46">
+    <div class="title">AI Art 46</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 마흔일곱 번째 프레임 -->
+  <div class="frame">
+    <img src="art47.jpg" alt="AI Art 47">
+    <div class="title">AI Art 47</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 마흔여덟 번째 프레임 -->
+  <div class="frame">
+    <img src="art48.jpg" alt="AI Art 48">
+    <div class="title">AI Art 48</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 마흔아홉 번째 프레임 -->
+  <div class="frame">
+    <img src="art49.jpg" alt="AI Art 49">
+    <div class="title">AI Art 49</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 쉰 번째 프레임 -->
+  <div class="frame">
+    <img src="art50.jpg" alt="AI Art 50">
+    <div class="title">AI Art 50</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 쉰한 번째 프레임 -->
+  <div class="frame">
+    <img src="art51.jpg" alt="AI Art 51">
+    <div class="title">AI Art 51</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 쉰두 번째 프레임 -->
+  <div class="frame">
+    <img src="art52.jpg" alt="AI Art 52">
+    <div class="title">AI Art 52</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 쉰세 번째 프레임 -->
+  <div class="frame">
+    <img src="art53.jpg" alt="AI Art 53">
+    <div class="title">AI Art 53</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 쉰네 번째 프레임 -->
+  <div class="frame">
+    <img src="art54.jpg" alt="AI Art 54">
+    <div class="title">AI Art 54</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 쉰다섯 번째 프레임 -->
+  <div class="frame">
+    <img src="art55.jpg" alt="AI Art 55">
+    <div class="title">AI Art 55</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 쉰여섯 번째 프레임 -->
+  <div class="frame">
+    <img src="art56.jpg" alt="AI Art 56">
+    <div class="title">AI Art 56</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 쉰일곱 번째 프레임 -->
+  <div class="frame">
+    <img src="art57.jpg" alt="AI Art 57">
+    <div class="title">AI Art 57</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 쉰여덟 번째 프레임 -->
+  <div class="frame">
+    <img src="art58.jpg" alt="AI Art 58">
+    <div class="title">AI Art 58</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 쉰아홉 번째 프레임 -->
+  <div class="frame">
+    <img src="art59.jpg" alt="AI Art 59">
+    <div class="title">AI Art 59</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 예순 번째 프레임 -->
+  <div class="frame">
+    <img src="art60.jpg" alt="AI Art 60">
+    <div class="title">AI Art 60</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 예순한 번째 프레임 -->
+  <div class="frame">
+    <img src="art61.jpg" alt="AI Art 61">
+    <div class="title">AI Art 61</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 예순두 번째 프레임 -->
+  <div class="frame">
+    <img src="art62.jpg" alt="AI Art 62">
+    <div class="title">AI Art 62</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 예순세 번째 프레임 -->
+  <div class="frame">
+    <img src="art63.jpg" alt="AI Art 63">
+    <div class="title">AI Art 63</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 예순네 번째 프레임 -->
+  <div class="frame">
+    <img src="art64.jpg" alt="AI Art 64">
+    <div class="title">AI Art 64</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 예순다섯 번째 프레임 -->
+  <div class="frame">
+    <img src="art65.jpg" alt="AI Art 65">
+    <div class="title">AI Art 65</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 예순여섯 번째 프레임 -->
+  <div class="frame">
+    <img src="art66.jpg" alt="AI Art 66">
+    <div class="title">AI Art 66</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 예순일곱 번째 프레임 -->
+  <div class="frame">
+    <img src="art67.jpg" alt="AI Art 67">
+    <div class="title">AI Art 67</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 예순여덟 번째 프레임 -->
+  <div class="frame">
+    <img src="art68.jpg" alt="AI Art 68">
+    <div class="title">AI Art 68</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 예순아홉 번째 프레임 -->
+  <div class="frame">
+    <img src="art69.jpg" alt="AI Art 69">
+    <div class="title">AI Art 69</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 일흔 번째 프레임 -->
+  <div class="frame">
+    <img src="art70.jpg" alt="AI Art 70">
+    <div class="title">AI Art 70</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 일흔한 번째 프레임 -->
+  <div class="frame">
+    <img src="art71.jpg" alt="AI Art 71">
+    <div class="title">AI Art 71</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 일흔두 번째 프레임 -->
+  <div class="frame">
+    <img src="art72.jpg" alt="AI Art 72">
+    <div class="title">AI Art 72</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 일흔세 번째 프레임 -->
+  <div class="frame">
+    <img src="art73.jpg" alt="AI Art 73">
+    <div class="title">AI Art 73</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 일흔네 번째 프레임 -->
+  <div class="frame">
+    <img src="art74.jpg" alt="AI Art 74">
+    <div class="title">AI Art 74</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 일흔다섯 번째 프레임 -->
+  <div class="frame">
+    <img src="art75.jpg" alt="AI Art 75">
+    <div class="title">AI Art 75</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 일흔여섯 번째 프레임 -->
+  <div class="frame">
+    <img src="art76.jpg" alt="AI Art 76">
+    <div class="title">AI Art 76</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 일흔일곱 번째 프레임 -->
+  <div class="frame">
+    <img src="art77.jpg" alt="AI Art 77">
+    <div class="title">AI Art 77</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 일흔여덟 번째 프레임 -->
+  <div class="frame">
+    <img src="art78.jpg" alt="AI Art 78">
+    <div class="title">AI Art 78</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 일흔아홉 번째 프레임 -->
+  <div class="frame">
+    <img src="art79.jpg" alt="AI Art 79">
+    <div class="title">AI Art 79</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 여든 번째 프레임 -->
+  <div class="frame">
+    <img src="art80.jpg" alt="AI Art 80">
+    <div class="title">AI Art 80</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 여든한 번째 프레임 -->
+  <div class="frame">
+    <img src="art81.jpg" alt="AI Art 81">
+    <div class="title">AI Art 81</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 여든두 번째 프레임 -->
+  <div class="frame">
+    <img src="art82.jpg" alt="AI Art 82">
+    <div class="title">AI Art 82</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 여든세 번째 프레임 -->
+  <div class="frame">
+    <img src="art83.jpg" alt="AI Art 83">
+    <div class="title">AI Art 83</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 여든네 번째 프레임 -->
+  <div class="frame">
+    <img src="art84.jpg" alt="AI Art 84">
+    <div class="title">AI Art 84</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 여든다섯 번째 프레임 -->
+  <div class="frame">
+    <img src="art85.jpg" alt="AI Art 85">
+    <div class="title">AI Art 85</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 여든여섯 번째 프레임 -->
+  <div class="frame">
+    <img src="art86.jpg" alt="AI Art 86">
+    <div class="title">AI Art 86</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 여든일곱 번째 프레임 -->
+  <div class="frame">
+    <img src="art87.jpg" alt="AI Art 87">
+    <div class="title">AI Art 87</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 여든여덟 번째 프레임 -->
+  <div class="frame">
+    <img src="art88.jpg" alt="AI Art 88">
+    <div class="title">AI Art 88</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 여든아홉 번째 프레임 -->
+  <div class="frame">
+    <img src="art89.jpg" alt="AI Art 89">
+    <div class="title">AI Art 89</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 아흔 번째 프레임 -->
+  <div class="frame">
+    <img src="art90.jpg" alt="AI Art 90">
+    <div class="title">AI Art 90</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 아흔한 번째 프레임 -->
+  <div class="frame">
+    <img src="art91.jpg" alt="AI Art 91">
+    <div class="title">AI Art 91</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 아흔두 번째 프레임 -->
+  <div class="frame">
+    <img src="art92.jpg" alt="AI Art 92">
+    <div class="title">AI Art 92</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 아흔세 번째 프레임 -->
+  <div class="frame">
+    <img src="art93.jpg" alt="AI Art 93">
+    <div class="title">AI Art 93</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 아흔네 번째 프레임 -->
+  <div class="frame">
+    <img src="art94.jpg" alt="AI Art 94">
+    <div class="title">AI Art 94</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 아흔다섯 번째 프레임 -->
+  <div class="frame">
+    <img src="art95.jpg" alt="AI Art 95">
+    <div class="title">AI Art 95</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 아흔여섯 번째 프레임 -->
+  <div class="frame">
+    <img src="art96.jpg" alt="AI Art 96">
+    <div class="title">AI Art 96</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 아흔일곱 번째 프레임 -->
+  <div class="frame">
+    <img src="art97.jpg" alt="AI Art 97">
+    <div class="title">AI Art 97</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 아흔여덟 번째 프레임 -->
+  <div class="frame">
+    <img src="art98.jpg" alt="AI Art 98">
+    <div class="title">AI Art 98</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 아흔아홉 번째 프레임 -->
+  <div class="frame">
+    <img src="art99.jpg" alt="AI Art 99">
+    <div class="title">AI Art 99</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+
+  <!-- 백 번째 프레임 -->
+  <div class="frame">
+    <img src="art100.jpg" alt="AI Art 100">
+    <div class="title">AI Art 100</div>
+    <div class="support">
+      <a href="https://www.buymeacoffee.com/rnjsjergus12" target="_blank">♥ Support</a>
+    </div>
+  </div>
+</div>
+
+<!-- Scroll to Top Button -->
+<button id="scroll-to-top">↑ Top</button>
+
+<!-- Chat Panel -->
+<div id="chat-panel">
+  <div id="chat-header">AI Exhibition Chat</div>
+  <div id="nickname-section">
+    <label for="nickname-input">닉네임: </label>
+    <input type="text" id="nickname-input" placeholder="닉네임 입력">
+    <button id="change-nickname-button">변경</button>
+  </div>
+  <div id="chat-messages"></div>
+  <div id="chat-input">
+    <input type="text" id="message-input" placeholder="Type a message...">
+    <button id="send-button">Send</button>
+  </div>
+</div>
+
+<footer>
+  © 2025. All AI artworks created using custom generative models.  
+  <br>Website by 권덕현.
+</footer>
+
+<!-- Google Translate Widget Script -->
+<script type="text/javascript">
+  function googleTranslateElementInit() {
+    new google.translate.TranslateElement({
+      pageLanguage: 'en',
+      includedLanguages: 'ko,ja,zh-CN,es,fr,de',
+      layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+    }, 'google_translate_element');
+  }
+</script>
+<script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<!-- JavaScript -->
+<script type="text/javascript">
+  // 현재 사용자 정보
+  let currentUser = {
+    username: localStorage.getItem('nickname') || `User${Math.floor(Math.random() * 1000)}` // 랜덤 닉네임 생성
+  };
+
+  // BroadcastChannel 생성
+  const chatChannel = new BroadcastChannel('ai_exhibition_chat');
+
+  // 금지어 목록 (필요에 따라 확장)
+  const badWords = ['badword1', 'badword2', 'badword3'];
+
+  // 입력값 XSS 방지
+  function sanitizeInput(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // 금지어 필터링
+  function filterBadWords(text) {
+    let filtered = text;
+    badWords.forEach(word => {
+      const re = new RegExp(word, 'gi');
+      filtered = filtered.replace(re, '***');
+    });
+    return filtered;
+  }
+
+  // 화면에 메시지 표시
+  function displayMessage(msg) {
+    const container = document.getElementById('chat-messages');
+    if (!container) {
+      console.error('Error: #chat-messages 요소를 찾을 수 없습니다.');
+      return;
+    }
+    const el = document.createElement('div');
+    el.className = 'message';
+    el.innerHTML = `
+      <div class="message-content">
+        <span class="message-username">${msg.username}</span>
+        <span class="message-timestamp">${new Date(msg.timestamp).toLocaleTimeString()}</span>
+        <div class="message-text">${msg.text}</div>
+      </div>
+    `;
+    container.append(el);
+    container.scrollTop = container.scrollHeight; // 최신 메시지로 스크롤 이동
+  }
+
+  // 메시지 전송
+  function sendMessage() {
+    const input = document.getElementById('message-input');
+    if (!input) {
+      console.error('Error: #message-input 요소를 찾을 수 없습니다.');
+      return;
+    }
+    let text = input.value.trim();
+    if (!text) return; // 빈 메시지 전송 방지
+    text = sanitizeInput(filterBadWords(text));
+
+    const message = {
+      username: currentUser.username,
+      text,
+      timestamp: new Date().toISOString()
+    };
+
+    // BroadcastChannel을 통해 메시지 전송
+    chatChannel.postMessage(message);
+    displayMessage(message); // 자신에게도 메시지 표시
+    input.value = ''; // 입력창 초기화
+  }
+
+  // 닉네임 변경 기능
+  function changeNickname() {
+    const nicknameInput = document.getElementById('nickname-input');
+    if (!nicknameInput) {
+      console.error('Error: #nickname-input 요소를 찾을 수 없습니다.');
+      return;
+    }
+    const newNickname = nicknameInput.value.trim();
+    if (newNickname) {
+      currentUser.username = newNickname; // 닉네임 업데이트
+      localStorage.setItem('nickname', newNickname); // 닉네임 저장
+      console.log('Nickname changed to:', newNickname);
+    } else {
+      console.error('Error: 닉네임을 입력해주세요.');
+    }
+  }
+
+  // BroadcastChannel로 수신된 메시지 처리
+  chatChannel.onmessage = (event) => {
+    const msg = event.data;
+    displayMessage(msg); // 수신된 메시지 표시
+  };
+
+  // DOM 이벤트 리스너
+  document.addEventListener('DOMContentLoaded', () => {
+    const sendButton = document.getElementById('send-button');
+    const messageInput = document.getElementById('message-input');
+    const changeNicknameButton = document.getElementById('change-nickname-button');
+    const nicknameInput = document.getElementById('nickname-input');
+    const scrollToTopButton = document.getElementById('scroll-to-top');
+
+    if (!sendButton || !messageInput || !changeNicknameButton || !nicknameInput || !scrollToTopButton) {
+      console.error('Error: 필수 HTML 요소가 없습니다. 확인해주세요.');
+      return;
+    }
+
+    sendButton.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    changeNicknameButton.addEventListener('click', changeNickname);
+    nicknameInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') changeNickname();
+    });
+
+    // 스크롤 이벤트로 버튼 표시/숨김
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 300) { // 300px 이상 스크롤 시 버튼 표시
+        scrollToTopButton.style.display = 'block';
+      } else {
+        scrollToTopButton.style.display = 'none';
+      }
+    });
+
+    // 버튼 클릭 시 최상단으로 부드럽게 스크롤
+    scrollToTopButton.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
