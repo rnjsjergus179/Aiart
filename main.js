@@ -5,9 +5,8 @@ let currentUser = {
 
 // 2. WebSocket 연결 설정
 const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-// 정적 호스팅과 분리된 경우: hostname만 가져오고 10000번 포트 고정
-const wsHost = `${window.location.hostname}:10000`;
-const wsUrl = `${wsProtocol}//${wsHost}`;
+const wsUrl = `${wsProtocol}//${window.location.host}`; // Render 환경에 맞게 포트 번호 제거
+console.log('Attempting to connect to WebSocket at:', wsUrl); // 디버깅용 로그 추가
 const socket = new WebSocket(wsUrl);
 
 // WebSocket 이벤트 핸들러
