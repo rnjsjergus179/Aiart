@@ -40,7 +40,7 @@ socket.onerror = (error) => {
   console.error('WebSocket 오류:', error);
 };
 
-// 3. 채팅 메시지 표시 (번역 버튼 포함)
+// 3. 채팅 메시지 표시 (번역 버튼 추가)
 function displayMessage(msg) {
   const container = document.getElementById('chat-messages');
   if (!container) {
@@ -53,15 +53,35 @@ function displayMessage(msg) {
     <div class="message-content">
       <span class="message-username">${msg.username}</span>
       <span class="message-timestamp">${new Date(msg.timestamp).toLocaleTimeString()}</span>
-      <div class="message-text">${msg.text}</div>
-      <button class="translate-toggle" data-action="translate-toggle">✔️ 번역 보기</button>
+      <div class="message-text" data-original-text="${msg.text}">${msg.text}</div>
+      <button class="translate-toggle" onclick="toggleTranslate(this)">✔️ 번역 보기</button>
     </div>
   `;
   container.append(el);
   container.scrollTop = container.scrollHeight; // 최신 메시지로 스크롤 이동
 }
 
-// 4. 사용자 접속 메시지 표시
+// 4. 번역 토글 함수 (특정 메시지만 번역되도록 설정)
+function toggleTranslate(button) {
+  const messageText = button.previousElementSibling; // .message-text 요소
+  const originalText = messageText.dataset.originalText;
+  const isTranslated = button.dataset.translated === 'true';
+
+  if (!isTranslated) {
+    // 번역 모드: 메시지를 <span class="translate-target">로 감싸기
+    messageText.innerHTML = `<span class="translate-target">${originalText}</span>`;
+    button.dataset.translated = 'true';
+    button.textContent = '✔️ 원문 보기';
+    alert('Google 번역 위젯에서 언어를 선택해 번역해주세요. 선택한 메시지만 번역됩니다.');
+  } else {
+    // 원문 복원
+    messageText.textContent = originalText;
+    button.dataset.translated = 'false';
+    button.textContent = '✔️ 번역 보기';
+  }
+}
+
+// 5. 사용자 접속 메시지 표시
 function displayJoinMessage(data) {
   const container = document.getElementById('chat-messages');
   if (!container) {
@@ -80,7 +100,7 @@ function displayJoinMessage(data) {
   container.scrollTop = container.scrollHeight;
 }
 
-// 5. 사용자 퇴장 메시지 표시
+// 6. 사용자 퇴장 메시지 표시
 function displayLeaveMessage(data) {
   const container = document.getElementById('chat-messages');
   if (!container) {
@@ -99,7 +119,7 @@ function displayLeaveMessage(data) {
   container.scrollTop = container.scrollHeight;
 }
 
-// 6. 온라인 사용자 목록 업데이트
+// 7. 온라인 사용자 목록 업데이트
 function updateUserList(users) {
   const userListContainer = document.getElementById('user-list');
   if (!userListContainer) {
@@ -114,7 +134,7 @@ function updateUserList(users) {
   });
 }
 
-// 7. 입력 중 표시
+// 8. 입력 중 표시
 let typingUsers = new Set();
 function showTypingIndicator(username) {
   typingUsers.add(username);
@@ -139,7 +159,7 @@ function updateTypingIndicator() {
   }
 }
 
-// 8. 메시지 전송
+// 9. 메시지 전송
 function sendMessage() {
   const input = document.getElementById('message-input');
   if (!input) {
@@ -165,7 +185,7 @@ function sendMessage() {
   input.value = ''; // 입력창 초기화
 }
 
-// 9. 닉네임 변경 기능
+// 10. 닉네임 변경 기능
 function changeNickname() {
   const nicknameInput = document.getElementById('nickname-input');
   if (!nicknameInput) {
@@ -185,7 +205,7 @@ function changeNickname() {
   }
 }
 
-// 10. 타이핑 이벤트 처리
+// 11. 타이핑 이벤트 처리
 let typingTimeout;
 function handleTyping() {
   if (socket.readyState === WebSocket.OPEN) {
@@ -197,7 +217,7 @@ function handleTyping() {
   }
 }
 
-// 11. DOM 이벤트 리스너
+// 12. DOM 이벤트 리스너
 document.addEventListener('DOMContentLoaded', () => {
   const sendButton = document.getElementById('send-button');
   const messageInput = document.getElementById('message-input');
@@ -220,35 +240,4 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   messageInput.addEventListener('input', handleTyping);
-});
-
-// 12. 번역 토글 기능
-document.addEventListener('click', (e) => {
-  if (e.target.dataset.action === 'translate-toggle') {
-    const msgEl = e.target.closest('.message');
-    const isShown = msgEl.querySelector('.translation');
-    if (isShown) {
-      // 번역 숨기기
-      msgEl.removeChild(isShown);
-      e.target.textContent = '✔️ 번역 보기';
-    } else {
-      // 번역 요청
-      const originalText = msgEl.querySelector('.message-text').textContent;
-      const targetLang = navigator.language || 'en'; // 사용자 로컬 언어 또는 기본값 'en'
-      fetch('/translate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: originalText, targetLang })
-      })
-      .then(res => res.json())
-      .then(data => {
-        const div = document.createElement('div');
-        div.className = 'translation';
-        div.textContent = data.translatedText;
-        msgEl.append(div);
-        e.target.textContent = '숨기기';
-      })
-      .catch(error => console.error('번역 오류:', error));
-    }
-  }
 });
