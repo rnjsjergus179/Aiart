@@ -5,31 +5,30 @@ let currentUser = {
 
 // 2. WebSocket 연결 설정
 const wsProtocol = 'wss:'; // Render는 HTTPS를 사용하므로 wss: 사용
-const wsUrl = `${wsProtocol}//aiart-z1dy.onrender.com`; // Render의 정적 배포 서버 URL (포트 번호 제거)
+const wsUrl = `${wsProtocol}//aiart-z1dy.onrender.com`; // Render의 정적 배포 서버 URL
 console.log('Attempting to connect to WebSocket at:', wsUrl); // 디버깅용 로그 추가
 const socket = new WebSocket(wsUrl);
 
 // WebSocket 이벤트 핸들러
 socket.onopen = () => {
   console.log('WebSocket 연결 성공');
-  // 사용자 접속 시 서버에 닉네임 전송 (요구사항 1: join)
   socket.send(JSON.stringify({ type: 'join', username: currentUser.username }));
 };
 
 socket.onmessage = (event) => {
   const data = JSON.parse(event.data);
   if (data.type === 'message') {
-    displayMessage(data); // 메시지 표시 (요구사항 2: message)
+    displayMessage(data); // 메시지 표시
   } else if (data.type === 'userList') {
-    updateUserList(data.users); // 온라인 사용자 목록 업데이트 (요구사항 3: userList)
+    updateUserList(data.users); // 온라인 사용자 목록 업데이트
   } else if (data.type === 'typing') {
-    showTypingIndicator(data.username); // 입력 중 표시 (요구사항 4: typing)
+    showTypingIndicator(data.username); // 입력 중 표시
   } else if (data.type === 'stopTyping') {
-    hideTypingIndicator(data.username); // 입력 중 숨김 (요구사항 4: stopTyping)
+    hideTypingIndicator(data.username); // 입력 중 숨김
   } else if (data.type === 'join') {
-    displayJoinMessage(data); // 사용자 접속 메시지 표시 (요구사항 1: join)
+    displayJoinMessage(data); // 사용자 접속 메시지 표시
   } else if (data.type === 'leave') {
-    displayLeaveMessage(data); // 사용자 퇴장 메시지 표시 (요구사항 5: leave)
+    displayLeaveMessage(data); // 사용자 퇴장 메시지 표시
   }
 };
 
@@ -41,7 +40,7 @@ socket.onerror = (error) => {
   console.error('WebSocket 오류:', error);
 };
 
-// 3. 채팅 메시지 표시
+// 3. 채팅 메시지 표시 (번역 버튼 추가)
 function displayMessage(msg) {
   const container = document.getElementById('chat-messages');
   if (!container) {
@@ -55,13 +54,14 @@ function displayMessage(msg) {
       <span class="message-username">${msg.username}</span>
       <span class="message-timestamp">${new Date(msg.timestamp).toLocaleTimeString()}</span>
       <div class="message-text">${msg.text}</div>
+      <button class="translate-toggle" data-action="translate-toggle">✔️ 번역 보기</button>
     </div>
   `;
   container.append(el);
   container.scrollTop = container.scrollHeight; // 최신 메시지로 스크롤 이동
 }
 
-// 4. 사용자 접속 메시지 표시 (요구사항 1: join)
+// 4. 사용자 접속 메시지 표시
 function displayJoinMessage(data) {
   const container = document.getElementById('chat-messages');
   if (!container) {
@@ -80,7 +80,7 @@ function displayJoinMessage(data) {
   container.scrollTop = container.scrollHeight;
 }
 
-// 5. 사용자 퇴장 메시지 표시 (요구사항 5: leave)
+// 5. 사용자 퇴장 메시지 표시
 function displayLeaveMessage(data) {
   const container = document.getElementById('chat-messages');
   if (!container) {
@@ -99,7 +99,7 @@ function displayLeaveMessage(data) {
   container.scrollTop = container.scrollHeight;
 }
 
-// 6. 온라인 사용자 목록 업데이트 (요구사항 3: userList)
+// 6. 온라인 사용자 목록 업데이트
 function updateUserList(users) {
   const userListContainer = document.getElementById('user-list');
   if (!userListContainer) {
@@ -114,7 +114,7 @@ function updateUserList(users) {
   });
 }
 
-// 7. 입력 중 표시 (요구사항 4: typing/stopTyping)
+// 7. 입력 중 표시
 let typingUsers = new Set();
 function showTypingIndicator(username) {
   typingUsers.add(username);
@@ -139,7 +139,7 @@ function updateTypingIndicator() {
   }
 }
 
-// 8. 메시지 전송 (요구사항 2: message)
+// 8. 메시지 전송
 function sendMessage() {
   const input = document.getElementById('message-input');
   if (!input) {
@@ -185,7 +185,7 @@ function changeNickname() {
   }
 }
 
-// 10. 타이핑 이벤트 처리 (요구사항 4: typing/stopTyping)
+// 10. 타이핑 이벤트 처리
 let typingTimeout;
 function handleTyping() {
   if (socket.readyState === WebSocket.OPEN) {
@@ -204,20 +204,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const changeNicknameButton = document.getElementById('change-nickname-button');
   const nicknameInput = document.getElementById('nickname-input');
 
-  if (!sendButton) {
-    console.error('Error: #send-button 요소를 찾을 수 없습니다. HTML에 추가해주세요.');
-    return;
-  }
-  if (!messageInput) {
-    console.error('Error: #message-input 요소를 찾을 수 없습니다. HTML에 추가해주세요.');
-    return;
-  }
-  if (!changeNicknameButton) {
-    console.error('Error: #change-nickname-button 요소를 찾을 수 없습니다. HTML에 추가해주세요.');
-    return;
-  }
-  if (!nicknameInput) {
-    console.error('Error: #nickname-input 요소를 찾을 수 없습니다. HTML에 추가해주세요.');
+  if (!sendButton || !messageInput || !changeNicknameButton || !nicknameInput) {
+    console.error('Error: 필요한 DOM 요소를 찾을 수 없습니다. HTML을 확인해주세요.');
     return;
   }
 
@@ -232,4 +220,35 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   messageInput.addEventListener('input', handleTyping);
+});
+
+// 12. 번역 토글 기능
+document.addEventListener('click', (e) => {
+  if (e.target.dataset.action === 'translate-toggle') {
+    const msgEl = e.target.closest('.message');
+    const isShown = msgEl.querySelector('.translation');
+    if (isShown) {
+      // 번역 숨기기
+      msgEl.removeChild(isShown);
+      e.target.textContent = '✔️ 번역 보기';
+    } else {
+      // 번역 요청
+      const originalText = msgEl.querySelector('.message-text').textContent;
+      const targetLang = navigator.language || 'en'; // 사용자 로컬 언어 또는 기본값 'en'
+      fetch('/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: originalText, targetLang })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const div = document.createElement('div');
+        div.className = 'translation';
+        div.textContent = data.translatedText;
+        msgEl.append(div);
+        e.target.textContent = '숨기기';
+      })
+      .catch(error => console.error('번역 오류:', error));
+    }
+  }
 });
