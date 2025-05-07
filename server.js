@@ -2,24 +2,24 @@ const WebSocket = require('ws');
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
-const http = require('http');
+const https = require('https');
 
-// Render에서 제공하는 PORT 환경 변수 사용 (기본값 10000)
+// 1. 환경 변수 기반 포트 설정: 기본값을 10000으로 설정
 const PORT = process.env.PORT || 10000;
 
 // Express 앱 생성
 const app = express();
 
-// 루트 디렉토리의 정적 파일 서빙 (HTML, CSS, JS 등)
+// 2. 정적 파일 서빙: 루트 디렉토리에서 HTML/CSS/JS 제공
 app.use(express.static(path.join(__dirname, '.')));
 
 // HTTP 서버 생성
 const server = http.createServer(app);
 
-// WebSocket 서버 생성 (HTTP 서버와 통합)
+// 3. WebSocket 서버: HTTP 서버와 통합
 const wss = new WebSocket.Server({ server });
 
-// 메시지를 저장할 파일 경로 (루트 디렉토리 내 messages.txt)
+// 메시지 저장 파일 경로
 const MESSAGE_FILE = path.join(__dirname, 'messages.txt');
 
 // messages.txt 파일이 없으면 생성
@@ -27,13 +27,11 @@ if (!fs.existsSync(MESSAGE_FILE)) {
   fs.writeFileSync(MESSAGE_FILE, '');
 }
 
-// 온라인 사용자 목록 (Set으로 중복 방지)
+// 온라인 및 타이핑 사용자 목록
 const onlineUsers = new Set();
-
-// 타이핑 중인 사용자 목록 (Set으로 중복 방지)
 const typingUsers = new Set();
 
-// 공통 브로드캐스트 헬퍼
+// 브로드캐스트 헬퍼 함수
 const broadcast = (obj) => {
   const str = JSON.stringify(obj);
   wss.clients.forEach((client) => {
@@ -44,8 +42,9 @@ const broadcast = (obj) => {
 };
 
 // WebSocket 연결 처리
-wss.on('connection', (ws) => {
-  console.log('클라이언트 연결됨');
+wss.on('connection', (ws, req) => {
+  // 3. 연결 로그 추가
+  console.log('🟢 WS 연결됨:', req.socket.remoteAddress);
 
   // 초기 메시지 로드
   fs.readFile(MESSAGE_FILE, 'utf8', (err, data) => {
@@ -54,9 +53,7 @@ wss.on('connection', (ws) => {
       return;
     }
     const messages = data.split('\n').filter(Boolean).map(JSON.parse);
-    messages.forEach((msg) => {
-      ws.send(JSON.stringify(msg));
-    });
+    messages.forEach((msg) => ws.send(JSON.stringify(msg)));
   });
 
   ws.on('message', (raw) => {
@@ -65,7 +62,7 @@ wss.on('connection', (ws) => {
 
     switch (msg.type) {
       case 'join':
-        ws.username = msg.username; // WebSocket 인스턴스에 username 저장
+        ws.username = msg.username;
         onlineUsers.add(msg.username);
         broadcast({ type: 'join', username: msg.username, timestamp });
         broadcast({ type: 'userList', users: Array.from(onlineUsers) });
@@ -73,9 +70,7 @@ wss.on('connection', (ws) => {
       case 'message':
         const messageObj = { type: 'message', username: msg.username, text: msg.text, timestamp };
         fs.appendFile(MESSAGE_FILE, JSON.stringify(messageObj) + '\n', (err) => {
-          if (err) {
-            console.error('메시지 저장 오류:', err);
-          }
+          if (err) console.error('메시지 저장 오류:', err);
         });
         broadcast(messageObj);
         break;
@@ -106,6 +101,8 @@ wss.on('connection', (ws) => {
   });
 });
 
+// 4. 포트 리스닝 확인
 server.listen(PORT, () => {
   console.log(`HTTP 및 WebSocket 서버가 포트 ${PORT}에서 실행 중입니다.`);
+  console.log('ENV PORT:', process.env.PORT); // 디버깅용 환경 변수 확인
 });
