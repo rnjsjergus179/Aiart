@@ -4,9 +4,9 @@ let currentUser = {
 };
 
 // 2. WebSocket 연결 설정
-// 현재 페이지의 URL을 기반으로 WebSocket URL 동적 생성
 const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-const wsHost = window.location.host;
+// 정적 호스팅과 분리된 경우: hostname만 가져오고 10000번 포트 고정
+const wsHost = `${window.location.hostname}:10000`;
 const wsUrl = `${wsProtocol}//${wsHost}`;
 const socket = new WebSocket(wsUrl);
 
@@ -62,7 +62,7 @@ function displayMessage(msg) {
   container.scrollTop = container.scrollHeight; // 최신 메시지로 스크롤 이동
 }
 
-// 추가: 사용자 접속 메시지 표시 (요구사항 1: join)
+// 4. 사용자 접속 메시지 표시 (요구사항 1: join)
 function displayJoinMessage(data) {
   const container = document.getElementById('chat-messages');
   if (!container) {
@@ -81,7 +81,7 @@ function displayJoinMessage(data) {
   container.scrollTop = container.scrollHeight;
 }
 
-// 추가: 사용자 퇴장 메시지 표시 (요구사항 5: leave)
+// 5. 사용자 퇴장 메시지 표시 (요구사항 5: leave)
 function displayLeaveMessage(data) {
   const container = document.getElementById('chat-messages');
   if (!container) {
@@ -100,7 +100,7 @@ function displayLeaveMessage(data) {
   container.scrollTop = container.scrollHeight;
 }
 
-// 4. 온라인 사용자 목록 업데이트 (요구사항 3: userList)
+// 6. 온라인 사용자 목록 업데이트 (요구사항 3: userList)
 function updateUserList(users) {
   const userListContainer = document.getElementById('user-list');
   if (!userListContainer) {
@@ -115,7 +115,7 @@ function updateUserList(users) {
   });
 }
 
-// 5. 입력 중 표시 (요구사항 4: typing/stopTyping)
+// 7. 입력 중 표시 (요구사항 4: typing/stopTyping)
 let typingUsers = new Set();
 function showTypingIndicator(username) {
   typingUsers.add(username);
@@ -140,7 +140,7 @@ function updateTypingIndicator() {
   }
 }
 
-// 6. 메시지 전송 (요구사항 2: message)
+// 8. 메시지 전송 (요구사항 2: message)
 function sendMessage() {
   const input = document.getElementById('message-input');
   if (!input) {
@@ -157,7 +157,6 @@ function sendMessage() {
     timestamp: new Date().toISOString()
   };
 
-  // WebSocket을 통해 서버로 메시지 전송
   if (socket.readyState === WebSocket.OPEN) {
     socket.send(JSON.stringify(message));
   } else {
@@ -167,7 +166,7 @@ function sendMessage() {
   input.value = ''; // 입력창 초기화
 }
 
-// 7. 닉네임 변경 기능 (수정된 부분)
+// 9. 닉네임 변경 기능
 function changeNickname() {
   const nicknameInput = document.getElementById('nickname-input');
   if (!nicknameInput) {
@@ -177,11 +176,8 @@ function changeNickname() {
   const newNickname = nicknameInput.value.trim();
   if (newNickname && newNickname !== currentUser.username) {
     const oldNickname = currentUser.username;
-    // leave 이벤트 전송
     socket.send(JSON.stringify({ type: 'leave', username: oldNickname }));
-    // join 이벤트 전송
     socket.send(JSON.stringify({ type: 'join', username: newNickname }));
-    // 닉네임 업데이트
     currentUser.username = newNickname;
     localStorage.setItem('nickname', newNickname);
     console.log('Nickname changed to:', newNickname);
@@ -190,7 +186,7 @@ function changeNickname() {
   }
 }
 
-// 8. 타이핑 이벤트 처리 (요구사항 4: typing/stopTyping)
+// 10. 타이핑 이벤트 처리 (요구사항 4: typing/stopTyping)
 let typingTimeout;
 function handleTyping() {
   if (socket.readyState === WebSocket.OPEN) {
@@ -202,14 +198,13 @@ function handleTyping() {
   }
 }
 
-// 9. DOM 이벤트 리스너
+// 11. DOM 이벤트 리스너
 document.addEventListener('DOMContentLoaded', () => {
   const sendButton = document.getElementById('send-button');
   const messageInput = document.getElementById('message-input');
   const changeNicknameButton = document.getElementById('change-nickname-button');
   const nicknameInput = document.getElementById('nickname-input');
 
-  // 요소가 존재하는지 확인
   if (!sendButton) {
     console.error('Error: #send-button 요소를 찾을 수 없습니다. HTML에 추가해주세요.');
     return;
@@ -227,18 +222,15 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  // 메시지 전송 이벤트
   sendButton.addEventListener('click', sendMessage);
   messageInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') sendMessage();
   });
 
-  // 닉네임 변경 이벤트
   changeNicknameButton.addEventListener('click', changeNickname);
   nicknameInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') changeNickname();
   });
 
-  // 타이핑 이벤트
   messageInput.addEventListener('input', handleTyping);
 });
