@@ -2,7 +2,7 @@ const WebSocket = require('ws');
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
-const https = require('https');
+const https = require('http');
 
 // 1. 환경 변수 기반 포트 설정: 기본값을 10000으로 설정
 const PORT = process.env.PORT || 10000;
