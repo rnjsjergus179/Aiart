@@ -27,17 +27,27 @@ if (!fs.existsSync(MESSAGE_FILE)) {
   fs.writeFileSync(MESSAGE_FILE, '');
 }
 
-// 온라인 사용자 목록
-let onlineUsers = [];
+// 온라인 사용자 목록 (Set으로 중복 방지)
+const onlineUsers = new Set();
 
-// 타이핑 중인 사용자 목록
-let typingUsers = [];
+// 타이핑 중인 사용자 목록 (Set으로 중복 방지)
+const typingUsers = new Set();
+
+// 공통 브로드캐스트 헬퍼
+const broadcast = (obj) => {
+  const str = JSON.stringify(obj);
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(str);
+    }
+  });
+};
 
 // WebSocket 연결 처리
 wss.on('connection', (ws) => {
   console.log('클라이언트 연결됨');
 
-  // 기존 메시지를 클라이언트에 전송
+  // 초기 메시지 로드
   fs.readFile(MESSAGE_FILE, 'utf8', (err, data) => {
     if (err) {
       console.error('메시지 파일 읽기 오류:', err);
@@ -49,68 +59,53 @@ wss.on('connection', (ws) => {
     });
   });
 
-  ws.on('message', (message) => {
-    console.log('수신된 메시지:', message);
-    const msg = JSON.parse(message);
+  ws.on('message', (raw) => {
+    const msg = JSON.parse(raw);
+    const timestamp = new Date().toISOString();
 
     switch (msg.type) {
       case 'join':
-        onlineUsers.push(msg.username);
-        wss.clients.forEach((client) => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({ type: 'userList', users: onlineUsers }));
-          }
-        });
+        ws.username = msg.username; // WebSocket 인스턴스에 username 저장
+        onlineUsers.add(msg.username);
+        broadcast({ type: 'join', username: msg.username, timestamp });
+        broadcast({ type: 'userList', users: Array.from(onlineUsers) });
         break;
       case 'message':
-        // 메시지를 messages.txt 파일에 저장
-        fs.appendFile(MESSAGE_FILE, JSON.stringify(msg) + '\n', (err) => {
+        const messageObj = { type: 'message', username: msg.username, text: msg.text, timestamp };
+        fs.appendFile(MESSAGE_FILE, JSON.stringify(messageObj) + '\n', (err) => {
           if (err) {
             console.error('메시지 저장 오류:', err);
           }
         });
-        // 모든 클라이언트에게 메시지 브로드캐스트
-        wss.clients.forEach((client) => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send(message);
-          }
-        });
+        broadcast(messageObj);
         break;
       case 'typing':
-        if (!typingUsers.includes(msg.username)) {
-          typingUsers.push(msg.username);
-          wss.clients.forEach((client) => {
-            if (client.readyState === WebSocket.OPEN) {
-              client.send(JSON.stringify({ type: 'typing', typingUsers }));
-            }
-          });
-        }
+        typingUsers.add(msg.username);
+        broadcast({ type: 'typing', username: msg.username });
         break;
       case 'stopTyping':
-        typingUsers = typingUsers.filter(user => user !== msg.username);
-        wss.clients.forEach((client) => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({ type: 'stopTyping', typingUsers }));
-          }
-        });
+        typingUsers.delete(msg.username);
+        broadcast({ type: 'stopTyping', username: msg.username });
         break;
       case 'leave':
-        onlineUsers = onlineUsers.filter(user => user !== msg.username);
-        wss.clients.forEach((client) => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({ type: 'userList', users: onlineUsers }));
-          }
-        });
+        onlineUsers.delete(msg.username);
+        broadcast({ type: 'leave', username: msg.username, timestamp });
+        broadcast({ type: 'userList', users: Array.from(onlineUsers) });
         break;
     }
   });
 
   ws.on('close', () => {
     console.log('클라이언트 연결 종료');
+    if (ws.username) {
+      onlineUsers.delete(ws.username);
+      const timestamp = new Date().toISOString();
+      broadcast({ type: 'leave', username: ws.username, timestamp });
+      broadcast({ type: 'userList', users: Array.from(onlineUsers) });
+    }
   });
 });
 
-// HTTP 및 WebSocket 서버 실행
 server.listen(PORT, () => {
   console.log(`HTTP 및 WebSocket 서버가 포트 ${PORT}에서 실행 중입니다.`);
 });
