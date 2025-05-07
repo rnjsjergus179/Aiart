@@ -4,8 +4,8 @@ let currentUser = {
 };
 
 // 2. WebSocket 연결 설정
-const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-const wsUrl = `${wsProtocol}//${window.location.host}`; // Render 환경에 맞게 포트 번호 제거
+const wsProtocol = 'wss:'; // Render는 HTTPS를 사용하므로 wss: 사용
+const wsUrl = `${wsProtocol}//aiart-z1dy.onrender.com`; // Render의 정적 배포 서버 URL (포트 번호 제거)
 console.log('Attempting to connect to WebSocket at:', wsUrl); // 디버깅용 로그 추가
 const socket = new WebSocket(wsUrl);
 
