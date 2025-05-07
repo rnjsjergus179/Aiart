@@ -167,7 +167,7 @@ function sendMessage() {
   input.value = ''; // 입력창 초기화
 }
 
-// 7. 닉네임 변경 기능
+// 7. 닉네임 변경 기능 (수정된 부분)
 function changeNickname() {
   const nicknameInput = document.getElementById('nickname-input');
   if (!nicknameInput) {
@@ -175,12 +175,16 @@ function changeNickname() {
     return;
   }
   const newNickname = nicknameInput.value.trim();
-  if (newNickname) {
-    currentUser.username = newNickname; // 닉네임 업데이트
-    localStorage.setItem('nickname', newNickname); // 닉네임 로컬 스토리지에 저장
+  if (newNickname && newNickname !== currentUser.username) {
+    const oldNickname = currentUser.username;
+    // leave 이벤트 전송
+    socket.send(JSON.stringify({ type: 'leave', username: oldNickname }));
+    // join 이벤트 전송
+    socket.send(JSON.stringify({ type: 'join', username: newNickname }));
+    // 닉네임 업데이트
+    currentUser.username = newNickname;
+    localStorage.setItem('nickname', newNickname);
     console.log('Nickname changed to:', newNickname);
-    // 닉네임 변경 시 서버에 알림
-    socket.send(JSON.stringify({ type: 'nickname', username: newNickname }));
   } else {
     console.error('Error: 닉네임을 입력해주세요.');
   }
