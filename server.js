@@ -10,8 +10,8 @@ const PORT = process.env.PORT || 8080;
 // Express 앱 생성
 const app = express();
 
-// docs 폴더의 정적 파일 서빙 (HTML, CSS, JS 등)
-app.use(express.static(path.join(__dirname, 'docs')));
+// 루트 디렉토리의 정적 파일 서빙 (HTML, CSS, JS 등)
+app.use(express.static(path.join(__dirname, '.')));
 
 // HTTP 서버 생성
 const server = http.createServer(app);
@@ -19,14 +19,8 @@ const server = http.createServer(app);
 // WebSocket 서버 생성 (HTTP 서버와 통합)
 const wss = new WebSocket.Server({ server });
 
-// 메시지를 저장할 파일 경로 (docs 폴더 내 messages.txt)
-const DOCS_DIR = path.join(__dirname, 'docs');
-const MESSAGE_FILE = path.join(DOCS_DIR, 'messages.txt');
-
-// docs 폴더가 없으면 생성
-if (!fs.existsSync(DOCS_DIR)) {
-  fs.mkdirSync(DOCS_DIR);
-}
+// 메시지를 저장할 파일 경로 (루트 디렉토리 내 messages.txt)
+const MESSAGE_FILE = path.join(__dirname, 'messages.txt');
 
 // messages.txt 파일이 없으면 생성
 if (!fs.existsSync(MESSAGE_FILE)) {
@@ -77,4 +71,3 @@ wss.on('connection', (ws) => {
 server.listen(PORT, () => {
   console.log(`HTTP 및 WebSocket 서버가 포트 ${PORT}에서 실행 중입니다.`);
 });
-
