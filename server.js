@@ -4,8 +4,8 @@ const path = require('path');
 const express = require('express');
 const http = require('http');
 
-// 1. 환경 변수 기반 포트 설정: 기본값을 10000으로 설정
-const PORT = process.env.PORT || 10000;
+// 1. 환경 변수 기반 포트 설정: Render에서 제공하는 PORT 사용, 기본값 3000
+const PORT = process.env.PORT || 3000;
 
 // Express 앱 생성
 const app = express();
@@ -43,7 +43,7 @@ const broadcast = (obj) => {
 
 // WebSocket 연결 처리
 wss.on('connection', (ws, req) => {
-  // 3. 연결 로그 추가
+  // 연결 로그 추가
   console.log('🟢 WS 연결됨:', req.socket.remoteAddress);
 
   // 초기 메시지 로드
