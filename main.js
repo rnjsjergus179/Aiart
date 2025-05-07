@@ -5,8 +5,8 @@ let currentUser = {
 
 // 2. WebSocket 연결 설정
 const wsProtocol = 'wss:'; // Render는 HTTPS를 사용하므로 wss: 사용
-const wsUrl = `${wsProtocol}//aiart-z1dy.onrender.com`; // Render의 정적 배포 서버 URL
-console.log('Attempting to connect to WebSocket at:', wsUrl); // 디버깅용 로그 추가
+const wsUrl = `${wsProtocol}//aiart-z1dy.onrender.com`; // Render의 WebSocket 서버 URL
+console.log('Attempting to connect to WebSocket at:', wsUrl); // 디버깅용 로그
 const socket = new WebSocket(wsUrl);
 
 // WebSocket 이벤트 핸들러
@@ -20,15 +20,15 @@ socket.onmessage = (event) => {
   if (data.type === 'message') {
     displayMessage(data); // 메시지 표시
   } else if (data.type === 'userList') {
-    updateUserList(data.users); // 온라인 사용자 목록 업데이트
+    updateUserList(data.users); // 사용자 목록 업데이트
   } else if (data.type === 'typing') {
     showTypingIndicator(data.username); // 입력 중 표시
   } else if (data.type === 'stopTyping') {
     hideTypingIndicator(data.username); // 입력 중 숨김
   } else if (data.type === 'join') {
-    displayJoinMessage(data); // 사용자 접속 메시지 표시
+    displayJoinMessage(data); // 접속 메시지
   } else if (data.type === 'leave') {
-    displayLeaveMessage(data); // 사용자 퇴장 메시지 표시
+    displayLeaveMessage(data); // 퇴장 메시지
   }
 };
 
@@ -40,11 +40,11 @@ socket.onerror = (error) => {
   console.error('WebSocket 오류:', error);
 };
 
-// 3. 채팅 메시지 표시 (번역 버튼 추가)
+// 3. 채팅 메시지 표시 (번역 버튼 포함)
 function displayMessage(msg) {
   const container = document.getElementById('chat-messages');
   if (!container) {
-    console.error('Error: #chat-messages 요소를 찾을 수 없습니다. HTML에 추가해주세요.');
+    console.error('Error: #chat-messages 요소가 없습니다. HTML을 확인하세요.');
     return;
   }
   const el = document.createElement('div');
@@ -57,22 +57,22 @@ function displayMessage(msg) {
       <button class="translate-toggle" onclick="toggleTranslate(this)">✔️ 번역 보기</button>
     </div>
   `;
-  container.append(el);
-  container.scrollTop = container.scrollHeight; // 최신 메시지로 스크롤 이동
+  container.appendChild(el);
+  container.scrollTop = container.scrollHeight; // 스크롤 최신 메시지로 이동
 }
 
-// 4. 번역 토글 함수 (특정 메시지만 번역되도록 설정)
+// 4. 번역 토글 함수
 function toggleTranslate(button) {
   const messageText = button.previousElementSibling; // .message-text 요소
   const originalText = messageText.dataset.originalText;
   const isTranslated = button.dataset.translated === 'true';
 
   if (!isTranslated) {
-    // 번역 모드: 메시지를 <span class="translate-target">로 감싸기
+    // 번역 모드: Google 번역 위젯용 클래스 추가
     messageText.innerHTML = `<span class="translate-target">${originalText}</span>`;
     button.dataset.translated = 'true';
     button.textContent = '✔️ 원문 보기';
-    alert('Google 번역 위젯에서 언어를 선택해 번역해주세요. 선택한 메시지만 번역됩니다.');
+    alert('Google 번역 위젯에서 언어를 선택해 번역하세요.');
   } else {
     // 원문 복원
     messageText.textContent = originalText;
@@ -85,18 +85,18 @@ function toggleTranslate(button) {
 function displayJoinMessage(data) {
   const container = document.getElementById('chat-messages');
   if (!container) {
-    console.error('Error: #chat-messages 요소를 찾을 수 없습니다. HTML에 추가해주세요.');
+    console.error('Error: #chat-messages 요소가 없습니다. HTML을 확인하세요.');
     return;
   }
   const el = document.createElement('div');
   el.className = 'message';
   el.innerHTML = `
     <div class="message-content">
-      <span class="message-username">${data.username} has joined the chat</span>
+      <span class="message-username">${data.username}님이 채팅에 참여했습니다</span>
       <span class="message-timestamp">${new Date(data.timestamp).toLocaleTimeString()}</span>
     </div>
   `;
-  container.append(el);
+  container.appendChild(el);
   container.scrollTop = container.scrollHeight;
 }
 
@@ -104,18 +104,18 @@ function displayJoinMessage(data) {
 function displayLeaveMessage(data) {
   const container = document.getElementById('chat-messages');
   if (!container) {
-    console.error('Error: #chat-messages 요소를 찾을 수 없습니다. HTML에 추가해주세요.');
+    console.error('Error: #chat-messages 요소가 없습니다. HTML을 확인하세요.');
     return;
   }
   const el = document.createElement('div');
   el.className = 'message';
   el.innerHTML = `
     <div class="message-content">
-      <span class="message-username">${data.username} has left the chat</span>
+      <span class="message-username">${data.username}님이 채팅을 떠났습니다</span>
       <span class="message-timestamp">${new Date(data.timestamp).toLocaleTimeString()}</span>
     </div>
   `;
-  container.append(el);
+  container.appendChild(el);
   container.scrollTop = container.scrollHeight;
 }
 
@@ -123,7 +123,7 @@ function displayLeaveMessage(data) {
 function updateUserList(users) {
   const userListContainer = document.getElementById('user-list');
   if (!userListContainer) {
-    console.error('Error: #user-list 요소를 찾을 수 없습니다. HTML에 추가해주세요.');
+    console.error('Error: #user-list 요소가 없습니다. HTML을 확인하세요.');
     return;
   }
   userListContainer.innerHTML = ''; // 기존 목록 초기화
@@ -149,7 +149,7 @@ function hideTypingIndicator(username) {
 function updateTypingIndicator() {
   const typingIndicator = document.getElementById('typing-indicator');
   if (!typingIndicator) {
-    console.error('Error: #typing-indicator 요소를 찾을 수 없습니다. HTML에 추가해주세요.');
+    console.error('Error: #typing-indicator 요소가 없습니다. HTML을 확인하세요.');
     return;
   }
   if (typingUsers.size > 0) {
@@ -163,7 +163,7 @@ function updateTypingIndicator() {
 function sendMessage() {
   const input = document.getElementById('message-input');
   if (!input) {
-    console.error('Error: #message-input 요소를 찾을 수 없습니다. HTML에 추가해주세요.');
+    console.error('Error: #message-input 요소가 없습니다. HTML을 확인하세요.');
     return;
   }
   let text = input.value.trim();
@@ -178,18 +178,17 @@ function sendMessage() {
 
   if (socket.readyState === WebSocket.OPEN) {
     socket.send(JSON.stringify(message));
+    input.value = ''; // 입력창 초기화
   } else {
     console.error('WebSocket이 연결되지 않았습니다.');
   }
-
-  input.value = ''; // 입력창 초기화
 }
 
-// 10. 닉네임 변경 기능
+// 10. 닉네임 변경
 function changeNickname() {
   const nicknameInput = document.getElementById('nickname-input');
   if (!nicknameInput) {
-    console.error('Error: #nickname-input 요소를 찾을 수 없습니다. HTML에 추가해주세요.');
+    console.error('Error: #nickname-input 요소가 없습니다. HTML을 확인하세요.');
     return;
   }
   const newNickname = nicknameInput.value.trim();
@@ -199,9 +198,7 @@ function changeNickname() {
     socket.send(JSON.stringify({ type: 'join', username: newNickname }));
     currentUser.username = newNickname;
     localStorage.setItem('nickname', newNickname);
-    console.log('Nickname changed to:', newNickname);
-  } else {
-    console.error('Error: 닉네임을 입력해주세요.');
+    console.log('닉네임이 변경되었습니다:', newNickname);
   }
 }
 
@@ -225,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const nicknameInput = document.getElementById('nickname-input');
 
   if (!sendButton || !messageInput || !changeNicknameButton || !nicknameInput) {
-    console.error('Error: 필요한 DOM 요소를 찾을 수 없습니다. HTML을 확인해주세요.');
+    console.error('Error: 필요한 DOM 요소가 없습니다. HTML을 확인하세요.');
     return;
   }
 
