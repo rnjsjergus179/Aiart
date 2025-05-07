@@ -4,8 +4,8 @@ const path = require('path');
 const express = require('express');
 const http = require('http');
 
-// Render에서 제공하는 PORT 환경 변수 사용 (기본값 8080)
-const PORT = process.env.PORT || 8080;
+// Render에서 제공하는 PORT 환경 변수 사용 (기본값 10000)
+const PORT = process.env.PORT || 10000;
 
 // Express 앱 생성
 const app = express();
