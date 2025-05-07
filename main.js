@@ -1,5 +1,3 @@
-// main.js
-
 // 1. 현재 사용자 정보
 let currentUser = {
   username: localStorage.getItem('nickname') || `User${Math.floor(Math.random() * 1000)}` // 닉네임 로컬 스토리지에서 가져오거나 랜덤 생성
@@ -15,11 +13,21 @@ const socket = new WebSocket(wsUrl);
 // WebSocket 이벤트 핸들러
 socket.onopen = () => {
   console.log('WebSocket 연결 성공');
+  // 사용자 접속 시 서버에 닉네임 전송
+  socket.send(JSON.stringify({ type: 'join', username: currentUser.username }));
 };
 
 socket.onmessage = (event) => {
-  const msg = JSON.parse(event.data);
-  displayMessage(msg); // 수신된 메시지 표시
+  const data = JSON.parse(event.data);
+  if (data.type === 'message') {
+    displayMessage(data); // 메시지 표시
+  } else if (data.type === 'userList') {
+    updateUserList(data.users); // 온라인 사용자 목록 업데이트
+  } else if (data.type === 'typing') {
+    showTypingIndicator(data.username); // 입력 중 표시
+  } else if (data.type === 'stopTyping') {
+    hideTypingIndicator(data.username); // 입력 중 숨김
+  }
 };
 
 socket.onclose = () => {
@@ -50,7 +58,47 @@ function displayMessage(msg) {
   container.scrollTop = container.scrollHeight; // 최신 메시지로 스크롤 이동
 }
 
-// 4. 메시지 전송
+// 4. 온라인 사용자 목록 업데이트
+function updateUserList(users) {
+  const userListContainer = document.getElementById('user-list');
+  if (!userListContainer) {
+    console.error('Error: #user-list 요소를 찾을 수 없습니다. HTML에 추가해주세요.');
+    return;
+  }
+  userListContainer.innerHTML = ''; // 기존 목록 초기화
+  users.forEach((user) => {
+    const userEl = document.createElement('div');
+    userEl.textContent = user;
+    userListContainer.appendChild(userEl);
+  });
+}
+
+// 5. 입력 중 표시
+let typingUsers = new Set();
+function showTypingIndicator(username) {
+  typingUsers.add(username);
+  updateTypingIndicator();
+}
+
+function hideTypingIndicator(username) {
+  typingUsers.delete(username);
+  updateTypingIndicator();
+}
+
+function updateTypingIndicator() {
+  const typingIndicator = document.getElementById('typing-indicator');
+  if (!typingIndicator) {
+    console.error('Error: #typing-indicator 요소를 찾을 수 없습니다. HTML에 추가해주세요.');
+    return;
+  }
+  if (typingUsers.size > 0) {
+    typingIndicator.textContent = `${Array.from(typingUsers).join(', ')}님이 입력 중...`;
+  } else {
+    typingIndicator.textContent = '';
+  }
+}
+
+// 6. 메시지 전송
 function sendMessage() {
   const input = document.getElementById('message-input');
   if (!input) {
@@ -61,6 +109,7 @@ function sendMessage() {
   if (!text) return; // 빈 메시지 전송 방지
 
   const message = {
+    type: 'message',
     username: currentUser.username,
     text,
     timestamp: new Date().toISOString()
@@ -76,7 +125,7 @@ function sendMessage() {
   input.value = ''; // 입력창 초기화
 }
 
-// 5. 닉네임 변경 기능
+// 7. 닉네임 변경 기능
 function changeNickname() {
   const nicknameInput = document.getElementById('nickname-input');
   if (!nicknameInput) {
@@ -88,12 +137,26 @@ function changeNickname() {
     currentUser.username = newNickname; // 닉네임 업데이트
     localStorage.setItem('nickname', newNickname); // 닉네임 로컬 스토리지에 저장
     console.log('Nickname changed to:', newNickname);
+    // 닉네임 변경 시 서버에 알림
+    socket.send(JSON.stringify({ type: 'nickname', username: newNickname }));
   } else {
     console.error('Error: 닉네임을 입력해주세요.');
   }
 }
 
-// 6. DOM 이벤트 리스너
+// 8. 타이핑 이벤트 처리
+let typingTimeout;
+function handleTyping() {
+  if (socket.readyState === WebSocket.OPEN) {
+    socket.send(JSON.stringify({ type: 'typing', username: currentUser.username }));
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => {
+      socket.send(JSON.stringify({ type: 'stopTyping', username: currentUser.username }));
+    }, 3000); // 3초 후 입력 중지
+  }
+}
+
+// 9. DOM 이벤트 리스너
 document.addEventListener('DOMContentLoaded', () => {
   const sendButton = document.getElementById('send-button');
   const messageInput = document.getElementById('message-input');
@@ -129,4 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
   nicknameInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') changeNickname();
   });
+
+  // 타이핑 이벤트
+  messageInput.addEventListener('input', handleTyping);
 });
