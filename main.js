@@ -13,20 +13,24 @@ const socket = new WebSocket(wsUrl);
 // WebSocket 이벤트 핸들러
 socket.onopen = () => {
   console.log('WebSocket 연결 성공');
-  // 사용자 접속 시 서버에 닉네임 전송
+  // 사용자 접속 시 서버에 닉네임 전송 (요구사항 1: join)
   socket.send(JSON.stringify({ type: 'join', username: currentUser.username }));
 };
 
 socket.onmessage = (event) => {
   const data = JSON.parse(event.data);
   if (data.type === 'message') {
-    displayMessage(data); // 메시지 표시
+    displayMessage(data); // 메시지 표시 (요구사항 2: message)
   } else if (data.type === 'userList') {
-    updateUserList(data.users); // 온라인 사용자 목록 업데이트
+    updateUserList(data.users); // 온라인 사용자 목록 업데이트 (요구사항 3: userList)
   } else if (data.type === 'typing') {
-    showTypingIndicator(data.username); // 입력 중 표시
+    showTypingIndicator(data.username); // 입력 중 표시 (요구사항 4: typing)
   } else if (data.type === 'stopTyping') {
-    hideTypingIndicator(data.username); // 입력 중 숨김
+    hideTypingIndicator(data.username); // 입력 중 숨김 (요구사항 4: stopTyping)
+  } else if (data.type === 'join') {
+    displayJoinMessage(data); // 사용자 접속 메시지 표시 (요구사항 1: join)
+  } else if (data.type === 'leave') {
+    displayLeaveMessage(data); // 사용자 퇴장 메시지 표시 (요구사항 5: leave)
   }
 };
 
@@ -58,7 +62,45 @@ function displayMessage(msg) {
   container.scrollTop = container.scrollHeight; // 최신 메시지로 스크롤 이동
 }
 
-// 4. 온라인 사용자 목록 업데이트
+// 추가: 사용자 접속 메시지 표시 (요구사항 1: join)
+function displayJoinMessage(data) {
+  const container = document.getElementById('chat-messages');
+  if (!container) {
+    console.error('Error: #chat-messages 요소를 찾을 수 없습니다. HTML에 추가해주세요.');
+    return;
+  }
+  const el = document.createElement('div');
+  el.className = 'message';
+  el.innerHTML = `
+    <div class="message-content">
+      <span class="message-username">${data.username} has joined the chat</span>
+      <span class="message-timestamp">${new Date(data.timestamp).toLocaleTimeString()}</span>
+    </div>
+  `;
+  container.append(el);
+  container.scrollTop = container.scrollHeight;
+}
+
+// 추가: 사용자 퇴장 메시지 표시 (요구사항 5: leave)
+function displayLeaveMessage(data) {
+  const container = document.getElementById('chat-messages');
+  if (!container) {
+    console.error('Error: #chat-messages 요소를 찾을 수 없습니다. HTML에 추가해주세요.');
+    return;
+  }
+  const el = document.createElement('div');
+  el.className = 'message';
+  el.innerHTML = `
+    <div class="message-content">
+      <span class="message-username">${data.username} has left the chat</span>
+      <span class="message-timestamp">${new Date(data.timestamp).toLocaleTimeString()}</span>
+    </div>
+  `;
+  container.append(el);
+  container.scrollTop = container.scrollHeight;
+}
+
+// 4. 온라인 사용자 목록 업데이트 (요구사항 3: userList)
 function updateUserList(users) {
   const userListContainer = document.getElementById('user-list');
   if (!userListContainer) {
@@ -73,7 +115,7 @@ function updateUserList(users) {
   });
 }
 
-// 5. 입력 중 표시
+// 5. 입력 중 표시 (요구사항 4: typing/stopTyping)
 let typingUsers = new Set();
 function showTypingIndicator(username) {
   typingUsers.add(username);
@@ -98,7 +140,7 @@ function updateTypingIndicator() {
   }
 }
 
-// 6. 메시지 전송
+// 6. 메시지 전송 (요구사항 2: message)
 function sendMessage() {
   const input = document.getElementById('message-input');
   if (!input) {
@@ -144,7 +186,7 @@ function changeNickname() {
   }
 }
 
-// 8. 타이핑 이벤트 처리
+// 8. 타이핑 이벤트 처리 (요구사항 4: typing/stopTyping)
 let typingTimeout;
 function handleTyping() {
   if (socket.readyState === WebSocket.OPEN) {
