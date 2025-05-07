@@ -6,7 +6,11 @@ let currentUser = {
 };
 
 // 2. WebSocket 연결 설정
-const socket = new WebSocket('ws:https://crispy-enigma-97wq976vpqr63pwrp-8080.app.github.dev/'); // 서버의 WebSocket 주소 (포트 8080 사용)
+// 현재 페이지의 URL을 기반으로 WebSocket URL 동적 생성
+const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+const wsHost = window.location.host;
+const wsUrl = `${wsProtocol}//${wsHost}`;
+const socket = new WebSocket(wsUrl);
 
 // WebSocket 이벤트 핸들러
 socket.onopen = () => {
