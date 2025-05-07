@@ -40,7 +40,7 @@ socket.onerror = (error) => {
   console.error('WebSocket 오류:', error);
 };
 
-// 3. 채팅 메시지 표시 (번역 버튼 추가)
+// 3. 채팅 메시지 표시 (번역 버튼 포함)
 function displayMessage(msg) {
   const container = document.getElementById('chat-messages');
   if (!container) {
